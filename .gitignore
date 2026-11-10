@@ -1,0 +1,8 @@
+node_modules/
+dist/
+# bake-time inputs/outputs (re-create with: python blender/fetch_textures.py && npm run blender && npm run optimize)
+blender/textures/
+blender/models/
+blender/out/
+blender/*.blend
+blender/*.blend1
