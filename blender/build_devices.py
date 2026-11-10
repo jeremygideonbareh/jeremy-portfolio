@@ -222,6 +222,28 @@ bpy.ops.export_scene.gltf(filepath=os.path.join(out_dir, "models", "devices.glb"
 print("exported devices.glb")
 
 # ------------------------------------------------------------------ poster (studio product shot)
+# If live screen grabs exist (exported from the running site), show them on the screens.
+HERE = os.path.dirname(os.path.abspath(__file__))
+for scr_name in ("screen_phone", "screen_laptop"):
+    img_path = os.path.join(HERE, "out", f"{scr_name}.png")
+    obj = bpy.data.objects.get(scr_name)
+    if not (obj and os.path.exists(img_path)):
+        continue
+    m = bpy.data.materials.new(f"{scr_name}_poster")
+    m.use_nodes = True
+    nt = m.node_tree
+    for n in list(nt.nodes):
+        if n.type != "OUTPUT_MATERIAL":
+            nt.nodes.remove(n)
+    out = next(n for n in nt.nodes if n.type == "OUTPUT_MATERIAL")
+    tex = nt.nodes.new("ShaderNodeTexImage"); tex.image = bpy.data.images.load(img_path)
+    em = nt.nodes.new("ShaderNodeEmission"); em.inputs["Strength"].default_value = 1.0
+    nt.links.new(tex.outputs["Color"], em.inputs["Color"])
+    nt.links.new(em.outputs["Emission"], out.inputs["Surface"])
+    obj.data.materials.clear()
+    obj.data.materials.append(m)
+    print("poster screen", scr_name)
+scene.view_settings.view_transform = "Standard"
 world = bpy.data.worlds.new("studio"); scene.world = world; world.use_nodes = True
 bg = next(n for n in world.node_tree.nodes if n.type == "BACKGROUND")
 bg.inputs[0].default_value = (*srgb("#0b0d12"), 1); bg.inputs[1].default_value = 0.6

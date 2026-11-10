@@ -104,18 +104,25 @@ export function paintSite(ctx, W, H, cfg, t = 0, enter = 1, { chrome = true } = 
   ctx.font = `${font.weight} ${H * 0.034}px ${font.display}`;
   ctx.letterSpacing = `${font.tracking * H * 0.034}px`;
   ctx.fillText(cfg.name || 'Your brand', pad, navY);
-  const links = { store: ['Shop', 'Journal', 'About'], portfolio: ['Work', 'Info', 'Press'], app: ['Features', 'Pricing', 'Help'], website: ['Menu', 'Visit', 'Story'] }[cfg.type];
-  ctx.font = `500 ${H * 0.022}px ${font.body}`;
-  ctx.letterSpacing = '0px';
-  ctx.fillStyle = pal.muted;
-  links.forEach((l, i) => ctx.fillText(l, W * 0.42 + i * W * 0.085, navY - H * 0.004));
-  const ctaLabel = { store: 'Cart · 2', portfolio: 'Contact', app: 'Get the app', website: 'Find us' }[cfg.type];
-  const cw = W * 0.12, chh = H * 0.05;
-  rr(ctx, W - pad - cw, navY - chh * 0.72, cw, chh, r * 0.8, pal.ink);
-  ctx.fillStyle = pal.bg;
-  ctx.textAlign = 'center';
-  ctx.fillText(ctaLabel, W - pad - cw / 2, navY - chh * 0.72 + chh * 0.64);
-  ctx.textAlign = 'left';
+  const narrow = W < 700 || W / H < 0.9; // phone-sized canvas: mobile nav + stacked buttons
+  if (narrow) {
+    // burger instead of links
+    ctx.fillStyle = pal.ink;
+    for (let i = 0; i < 3; i++) rr(ctx, W - pad - W * 0.07, navY - H * 0.024 + i * H * 0.011, W * 0.07, H * 0.004, 2, pal.ink);
+  } else {
+    const links = cfg.links || { store: ['Shop', 'Journal', 'About'], portfolio: ['Work', 'Info', 'Press'], app: ['Features', 'Pricing', 'Help'], website: ['Menu', 'Visit', 'Story'] }[cfg.type];
+    ctx.font = `500 ${H * 0.022}px ${font.body}`;
+    ctx.letterSpacing = '0px';
+    ctx.fillStyle = pal.muted;
+    links.forEach((l, i) => ctx.fillText(l, W * 0.42 + i * W * 0.085, navY - H * 0.004));
+    const ctaLabel = { store: 'Cart · 2', portfolio: 'Contact', app: 'Get the app', website: 'Find us' }[cfg.type];
+    const cw = W * 0.12, chh = H * 0.05;
+    rr(ctx, W - pad - cw, navY - chh * 0.72, cw, chh, r * 0.8, pal.ink);
+    ctx.fillStyle = pal.bg;
+    ctx.textAlign = 'center';
+    ctx.fillText(ctaLabel, W - pad - cw / 2, navY - chh * 0.72 + chh * 0.64);
+    ctx.textAlign = 'left';
+  }
   ctx.globalAlpha = 1;
 
   // ---- hero text
@@ -136,7 +143,7 @@ export function paintSite(ctx, W, H, cfg, t = 0, enter = 1, { chrome = true } = 
   let y = heroTop + lines.length * size * 0.98 + H * 0.03;
 
   // sub copy
-  const sub = {
+  const sub = cfg.sub || {
     store: 'Small-batch goods, made by hand. Free shipping over $60.',
     portfolio: 'Selected work, 2019 — now. Available for commissions.',
     app: 'Plan, track and celebrate the small wins. Free on iOS & Android.',
@@ -151,7 +158,28 @@ export function paintSite(ctx, W, H, cfg, t = 0, enter = 1, { chrome = true } = 
   y += H * 0.03 + subLines.length * H * 0.036 + H * 0.03;
 
   // buttons
-  const btnLabels = { store: ['Shop the drop', 'Our story'], portfolio: ['See the work', 'Get in touch'], app: ['Download', 'See features'], website: ['View menu', 'Directions'] }[cfg.type];
+  const btnLabels = cfg.btns || { store: ['Shop the drop', 'Our story'], portfolio: ['See the work', 'Get in touch'], app: ['Download', 'See features'], website: ['View menu', 'Directions'] }[cfg.type];
+  if (narrow) {
+    // stacked, full-width mobile buttons
+    const bh2 = H * 0.045, bw2 = W - pad * 2;
+    ctx.globalAlpha = e(0.32);
+    rr(ctx, pad, y + rise(0.32), bw2, bh2, Math.min(r, bh2 / 2), pal.accent);
+    ctx.strokeStyle = pal.ink; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(pad, y + bh2 + H * 0.012 + rise(0.32), bw2, bh2, Math.min(r, bh2 / 2)); ctx.stroke();
+    ctx.font = `600 ${H * 0.019}px ${font.body}`;
+    ctx.letterSpacing = '0px';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = luminance(pal.accent) > 0.5 ? (luminance(pal.bg) < 0.5 ? pal.bg : pal.ink) : '#ffffff';
+    ctx.fillText(btnLabels[0], W / 2, y + bh2 * 0.64 + rise(0.32));
+    ctx.fillStyle = pal.ink;
+    ctx.fillText(btnLabels[1], W / 2, y + bh2 * 1.64 + H * 0.012 + rise(0.32));
+    ctx.textAlign = 'left';
+    ctx.globalAlpha = 1;
+    y += bh2 * 2 + H * 0.05;
+    paintVisual(ctx, cfg, { x: pad, y: Math.min(y, H * 0.72), w: W - pad * 2, h: H - Math.min(y, H * 0.72) - H * 0.03 }, pal, font, r, t, amp, e, 'centered');
+    ctx.restore();
+    return;
+  }
   const bh = H * 0.065, bw = W * 0.15;
   const bx = layout === 'centered' ? W / 2 - bw - W * 0.008 : pad;
   ctx.globalAlpha = e(0.32);
@@ -183,12 +211,13 @@ export function paintSite(ctx, W, H, cfg, t = 0, enter = 1, { chrome = true } = 
   } else {
     vx = pad; vy = Math.min(y, H * 0.7); vw = W - pad * 2; vh = H - vy - H * 0.04;
   }
-  paintVisual(ctx, cfg.type, { x: vx, y: vy, w: vw, h: vh }, pal, font, r, t, amp, e, layout);
+  paintVisual(ctx, cfg, { x: vx, y: vy, w: vw, h: vh }, pal, font, r, t, amp, e, layout);
 
   ctx.restore();
 }
 
-function paintVisual(ctx, type, b, pal, font, r, t, amp, e, layout) {
+function paintVisual(ctx, cfg, b, pal, font, r, t, amp, e, layout) {
+  const type = cfg.type;
   const float = (i) => Math.sin(t * 1.4 + i * 1.3) * 6 * amp;
   const horizontal = layout !== 'split';
 
@@ -198,7 +227,7 @@ function paintVisual(ctx, type, b, pal, font, r, t, amp, e, layout) {
     const cols = horizontal ? n : 2;
     const cw = (b.w - gap * (cols - 1)) / cols;
     const ch = horizontal ? b.h : (b.h - gap) / 2;
-    const items = [['Ash vase', '$48'], ['Dune mug', '$26'], ['Tide bowl', '$34'], ['Moon plate', '$30']];
+    const items = cfg.items || [['Ash vase', '$48'], ['Dune mug', '$26'], ['Tide bowl', '$34'], ['Moon plate', '$30']];
     const count = horizontal ? 3 : 4;
     for (let i = 0; i < count; i++) {
       const cx = b.x + (i % cols) * (cw + gap);
@@ -235,7 +264,7 @@ function paintVisual(ctx, type, b, pal, font, r, t, amp, e, layout) {
 
   if (type === 'portfolio') {
     const tiles = horizontal ? [[0, 0, 0.42, 1], [0.44, 0, 0.27, 1], [0.73, 0, 0.27, 1]] : [[0, 0, 0.58, 0.58], [0.6, 0, 0.4, 0.58], [0, 0.6, 0.4, 0.4], [0.42, 0.6, 0.58, 0.4]];
-    const labels = ['Salt Flats', 'Night Market', 'Concrete Bloom', 'Northern Light'];
+    const labels = cfg.tiles || ['Salt Flats', 'Night Market', 'Concrete Bloom', 'Northern Light'];
     tiles.forEach(([x, y, w, h], i) => {
       const tx = b.x + x * b.w, ty = b.y + y * b.h + (1 - e(0.3 + i * 0.08)) * 50;
       const tw = w * b.w, th = h * b.h;
@@ -287,7 +316,7 @@ function paintVisual(ctx, type, b, pal, font, r, t, amp, e, layout) {
     }
     // side cards when wide
     if (!horizontal || true) {
-      const cards = [['7-day streak', pal.accent], ['+12 min focus', pal.accent2]];
+      const cards = (cfg.cards || ['7-day streak', '+12 min focus']).map((l, i) => [l, i ? pal.accent2 : pal.accent]);
       cards.forEach(([label, c], i) => {
         const cxp = i === 0 ? px - pw * 0.75 : px + pw * 0.95;
         const cyp = py + ph * (0.25 + i * 0.35) + float(i + 2);
@@ -304,7 +333,7 @@ function paintVisual(ctx, type, b, pal, font, r, t, amp, e, layout) {
   }
 
   // website (local business / landing)
-  const feats = [['Today’s roast', 'Ethiopia Guji, washed'], ['Open now', 'Until 4pm · 2 min walk'], ['Order ahead', 'Skip the line']];
+  const feats = cfg.feats || [['Today’s roast', 'Ethiopia Guji, washed'], ['Open now', 'Until 4pm · 2 min walk'], ['Order ahead', 'Skip the line']];
   const cols = horizontal ? 3 : 1;
   const gap = b.w * 0.03;
   const cw = (b.w - gap * (cols - 1)) / cols;

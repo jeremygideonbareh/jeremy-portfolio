@@ -48,7 +48,7 @@
     </nav>
     <button class="nav__burger" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><i></i><i></i></button>
   </header>
-  <div class="menu" id="menu" hidden>
+  <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
     <a href="#grid" data-scroll><span class="mono">00</span>Grid</a>
     <a href="#sector1" data-scroll><span class="mono">S1</span>Discovery</a>
     <a href="#sector2" data-scroll><span class="mono">S2</span>Design</a>
@@ -220,11 +220,12 @@
 
     <!-- PODIUM: results -->
     <section class="podium theme-light" id="podium" data-sector="5" aria-labelledby="podium-title">
-      <p class="sector-tag mono"><b>P1</b> Results</p>
-      <h2 id="podium-title"><span class="g">THE</span> <em>podium</em></h2>
+      <p class="sector-tag mono"><b>P1</b> Line-up</p>
+      <h2 id="podium-title"><span class="g">THE</span> <em>line-up</em></h2>
+      <p class="podium__note">Featured concept builds on the podium &mdash; click any of them to take it into the pit stop and make it yours.</p>
       <div class="podium__steps"></div>
       <div class="classification">
-        <div class="classification__head mono"><span>Pos</span><span>Build</span><span>Class</span><span>Setup</span><span>Status</span></div>
+        <div class="classification__head mono"><span>No.</span><span>Build</span><span>Class</span><span>Setup</span><span>Status</span></div>
         <ol class="classification__rows"></ol>
       </div>
       <div class="hover-preview" aria-hidden="true"><canvas width="640" height="400"></canvas></div>
@@ -236,10 +237,25 @@
       <p class="sector-tag mono"><b>FIN</b> Chequered flag</p>
       <h2 class="finish__title" id="finish-title"><span class="line"><span class="g split">LIGHTS</span></span><span class="line"><span class="g split">OUT.</span> <em class="split">let&rsquo;s</em></span><span class="line"><span class="g split">BUILD.</span></span></h2>
       <p class="finish__lede">Tell me what you&rsquo;re making. I reply within two working days with honest next steps, a timeline and a price range.</p>
-      <div class="finish__ctas">
-        <a class="btn btn--blue btn--big magnetic" id="mail-cta" href="#" data-cursor="Say hi"><span>Start a project</span><iconify-icon icon="solar:letter-linear" aria-hidden="true"></iconify-icon></a>
-        <a class="btn btn--ghost btn--big magnetic" href="#pitstop" data-scroll><span>Tune it first</span></a>
-      </div>
+      <form class="contact" id="contact" novalidate aria-labelledby="contact-title">
+        <h3 class="mono" id="contact-title">Entry form — start a project</h3>
+        <div class="contact__grid">
+          <label class="field"><span class="mono">Your name</span><input name="name" type="text" autocomplete="name" required /><small class="contact__err" aria-live="polite"></small></label>
+          <label class="field"><span class="mono">Email</span><input name="email" type="email" autocomplete="email" required /><small class="contact__err" aria-live="polite"></small></label>
+          <label class="field"><span class="mono">What are we building?</span>
+            <select name="type"><option value="Online store">Online store</option><option value="Website">Website</option><option value="Portfolio">Portfolio</option><option value="App">App</option><option value="Not sure yet">Not sure yet</option></select>
+          </label>
+          <label class="field"><span class="mono">Budget</span>
+            <select name="budget"><option value="Not sure yet">Not sure yet</option><option value="Under 3k">Under 3k</option><option value="3k – 8k">3k – 8k</option><option value="8k – 20k">8k – 20k</option><option value="20k+">20k+</option></select>
+          </label>
+          <label class="field field--wide"><span class="mono">Tell me about it</span><textarea name="message" required placeholder="What you sell or do, who it's for, and when you'd like to launch."></textarea><small class="contact__err" aria-live="polite"></small></label>
+        </div>
+        <div class="contact__foot">
+          <p class="contact__alt">Prefer email? <button type="button" data-copy-email>Copy the address</button></p>
+          <button class="btn btn--blue btn--big magnetic" type="submit" data-cursor="Send"><span>Send entry</span><iconify-icon icon="solar:letter-linear" aria-hidden="true"></iconify-icon></button>
+        </div>
+        <p class="contact__status mono" role="status" aria-live="polite"></p>
+      </form>
     </section>
   </main>
 
@@ -252,6 +268,8 @@
       <a href="#grid" data-scroll>Back to the grid ↑</a>
     </div>
   </footer>
+
+  <a class="btn btn--blue mobile-cta" href="#finish" data-scroll><span>Start a project</span></a>
 
   <script type="module" src="/src/main.js"></script>
 </body>

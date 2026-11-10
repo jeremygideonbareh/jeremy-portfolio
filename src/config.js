@@ -6,6 +6,9 @@ export const SITE = {
   name: 'Jeremy',
   // TODO(owner): set your real inbox — used by "Start a project" and "Send this brief".
   email: 'hello@example.com',
+  // TODO(owner): paste a form endpoint (e.g. https://formspree.io/f/xxxxxx) to receive entries
+  // without the visitor's email app. Leave empty to fall back to a pre-filled email.
+  formEndpoint: '',
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 };
 
@@ -45,11 +48,18 @@ export const DEFAULT_CONFIG = {
 
 // Concept builds for the reel. Replace with real client launches as they ship:
 // keep `concept: true` only for self-initiated work.
+// Each concept has its own copy, products and personality so no two read alike.
 export const PROJECTS = [
-  { title: 'Kiln & Co.', kind: 'Online store', year: '2026', concept: true, summary: 'Ceramics shop with drop-day countdowns and a one-page checkout.', cfg: { type: 'store', name: 'Kiln & Co.', palette: 'stone', font: 'serif', layout: 'split', radius: 18, motion: 'lively' } },
-  { title: 'Ines Duarte', kind: 'Portfolio', year: '2026', concept: true, summary: 'Photographer portfolio where every series opens like a book.', cfg: { type: 'portfolio', name: 'Ines Duarte', palette: 'noir', font: 'serif', layout: 'editorial', radius: 4, motion: 'calm' } },
-  { title: 'Tidepool', kind: 'Mobile app', year: '2026', concept: true, summary: 'Habit app with streaks that grow a tiny reef as you go.', cfg: { type: 'app', name: 'Tidepool', palette: 'glacier', font: 'grotesk', layout: 'split', radius: 26, motion: 'max' } },
-  { title: 'Northline Coffee', kind: 'Website', year: '2026', concept: true, summary: 'Neighbourhood roaster site with live menu and map.', cfg: { type: 'website', name: 'Northline', palette: 'moss', font: 'grotesk', layout: 'centered', radius: 12, motion: 'lively' } },
-  { title: 'Studio Rhea', kind: 'Portfolio', year: '2026', concept: true, summary: 'Architecture studio site with plan-to-photo case studies.', cfg: { type: 'portfolio', name: 'Studio Rhea', palette: 'glacier', font: 'mono', layout: 'split', radius: 0, motion: 'calm' } },
-  { title: 'Bloom Supply', kind: 'Online store', year: '2026', concept: true, summary: 'Plant shop with a care-guide quiz that builds your cart.', cfg: { type: 'store', name: 'Bloom Supply', palette: 'rose', font: 'grotesk', layout: 'centered', radius: 28, motion: 'max' } },
+  { title: 'Kiln & Co.', kind: 'Online store', year: '2026', concept: true, summary: 'Ceramics shop with drop-day countdowns and a one-page checkout.',
+    cfg: { type: 'store', name: 'Kiln & Co.', palette: 'stone', font: 'serif', layout: 'split', radius: 18, motion: 'lively', headline: 'Made slowly. Shipped fast.' } },
+  { title: 'Ines Duarte', kind: 'Portfolio', year: '2026', concept: true, summary: 'Photographer portfolio where every series opens like a book.',
+    cfg: { type: 'portfolio', name: 'Ines Duarte', palette: 'noir', font: 'serif', layout: 'editorial', radius: 4, motion: 'calm', headline: 'Light, kept.', sub: 'Photographs from the Atlantic coast, 2019 — now.', tiles: ['Salt Flats', 'Low Tide', 'Fog Line', 'Harbour'], btns: ['View series', 'Book a shoot'] } },
+  { title: 'Tidepool', kind: 'Mobile app', year: '2026', concept: true, summary: 'Habit app with streaks that grow a tiny reef as you go.',
+    cfg: { type: 'app', name: 'Tidepool', palette: 'glacier', font: 'grotesk', layout: 'split', radius: 26, motion: 'max', headline: 'Grow a reef, one habit at a time.', cards: ['Reef level 4', '+12 min focus'] } },
+  { title: 'Northline Coffee', kind: 'Website', year: '2026', concept: true, summary: 'Neighbourhood roaster site with live menu and map.',
+    cfg: { type: 'website', name: 'Northline', palette: 'moss', font: 'grotesk', layout: 'centered', radius: 12, motion: 'lively', headline: 'The coffee your street deserves.' } },
+  { title: 'Studio Rhea', kind: 'Portfolio', year: '2026', concept: true, summary: 'Architecture studio site with plan-to-photo case studies.',
+    cfg: { type: 'portfolio', name: 'Studio Rhea', palette: 'glacier', font: 'mono', layout: 'split', radius: 0, motion: 'calm', headline: 'Plans that become places.', sub: 'Architecture & interiors. Lisbon / Porto.', tiles: ['Casa Alva', 'Pier 7', 'Atelier Sul', 'The Yard'], btns: ['Projects', 'Studio'], links: ['Projects', 'Studio', 'Contact'] } },
+  { title: 'Bloom Supply', kind: 'Online store', year: '2026', concept: true, summary: 'Plant shop with a care-guide quiz that builds your cart.',
+    cfg: { type: 'store', name: 'Bloom Supply', palette: 'rose', font: 'grotesk', layout: 'centered', radius: 28, motion: 'max', headline: 'Plants that suit your light.', sub: 'Take the 30-second quiz. We’ll fill your cart.', items: [['Monstera', '$38'], ['Pilea', '$22'], ['Fern trio', '$45'], ['Olive tree', '$64']], btns: ['Take the quiz', 'Shop all'] } },
 ];

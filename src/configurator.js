@@ -6,7 +6,8 @@ import { paintSite } from './sitepainter.js';
 const TYPE_LABEL = { store: 'Online store', portfolio: 'Portfolio', app: 'App', website: 'Website' };
 
 export class Configurator {
-  constructor({ form, canvas, summaryEl, statusEl, onChange }) {
+  constructor({ form, canvas, summaryEl, statusEl, onChange, onSend }) {
+    this.onSend = onSend;
     this.form = form;
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
@@ -70,8 +71,13 @@ export class Configurator {
     this.form.querySelector('[data-action="share"]').addEventListener('click', () => this.share());
     this.form.querySelector('[data-action="send"]').addEventListener('click', (e) => {
       e.preventDefault();
-      window.location.href = this.mailto();
-      this.status('Opening your email app with the brief…');
+      if (this.onSend) {
+        this.onSend(this.briefText(), TYPE_LABEL[this.state.type]);
+        this.status('Brief attached to the entry form below.');
+      } else {
+        window.location.href = this.mailto();
+        this.status('Opening your email app with the brief…');
+      }
     });
   }
 
@@ -144,6 +150,19 @@ export class Configurator {
     return `mailto:${SITE.email}?subject=${encodeURIComponent(`New ${TYPE_LABEL[s.type].toLowerCase()} — ${s.name}`)}&body=${encodeURIComponent(body)}`;
   }
 
+  briefText() {
+    const s = this.state;
+    return [
+      `Setup from the pit stop:`,
+      `• ${TYPE_LABEL[s.type]} for ${s.name || 'my brand'}`,
+      `• Headline idea: ${s.headline || DEFAULT_HEADLINES[s.type]}`,
+      `• ${PALETTES[s.palette].label} palette · ${FONTS[s.font].label} type · ${s.layout} layout · ${s.radius}px corners · ${s.motion} motion`,
+      `• Preview: ${location.origin}${location.pathname}#cfg=${encodeHash(s)}`,
+      '',
+      '',
+    ].join('\n');
+  }
+
   status(msg) {
     this.statusEl.textContent = msg;
     clearTimeout(this._st);
@@ -161,7 +180,8 @@ export class Configurator {
     if (this.enter < 1) this.enter = Math.min(1, (time - this.enterStart) / 1.1);
     if (!this.active) return false;
     this.acc += dt;
-    if (this.acc < 1 / 30) return false;
+    // full rate only while a change animates in; idle shimmer at 10fps keeps phones cool
+    if (this.acc < (this.enter < 1 ? 1 / 30 : 1 / 10)) return false;
     this.acc = 0;
     this.paint(time);
     return true;
