@@ -11,7 +11,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { SITE, PROJECTS, PALETTES, FONTS } from './config.js';
 import { Configurator } from './configurator.js';
-import { paintSite } from './sitepainter.js';
+import { paintSite, onImagesReady, preloadPhotos } from './sitepainter.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -43,6 +43,7 @@ const hasWebGL = (() => { try { const c = document.createElement('canvas'); retu
 
 // ------------------------------------------------------------------ basics
 $('.year').textContent = new Date().getFullYear();
+$('.footer__socials').innerHTML = (SITE.socials || []).map(([label, href]) => `<a href="${href}" target="_blank" rel="noopener">${label}</a>`).join('');
 const clock = $('.clock');
 const tickClock = () => (clock.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 tickClock();
@@ -127,6 +128,9 @@ $('.classification__rows').innerHTML = PROJECTS.map((p, i) => `
 const paintCanvas = (c, cfg, t = 0) => paintSite(c.getContext('2d'), c.width, c.height, cfg, t, 1, { chrome: true });
 const frameCanvases = $$('.frame canvas').map((c, i) => ({ c, cfg: PROJECTS[i].cfg }));
 const stepCanvases = $$('.step canvas').map((c) => ({ c, cfg: PROJECTS[+c.closest('.step').dataset.i].cfg }));
+// real photography for the concepts: repaint the static canvases as each image lands
+preloadPhotos(PROJECTS.flatMap((p) => p.cfg.photos || []));
+onImagesReady(() => { frameCanvases.forEach((k) => paintCanvas(k.c, k.cfg)); stepCanvases.forEach((k) => paintCanvas(k.c, k.cfg)); });
 
 // ------------------------------------------------------------------ configurator
 let stage = null;
@@ -151,6 +155,7 @@ const configurator = new Configurator({
   const form = $('#contact');
   const status = $('.contact__status', form);
   const submit = $('button[type="submit"]', form);
+  $$('.contact__err', form).forEach((el, i) => { el.id = `contact-err-${i}`; el.closest('label').querySelector('input, textarea').setAttribute('aria-describedby', el.id); });
   const err = (input, msg) => {
     input.setAttribute('aria-invalid', msg ? 'true' : 'false');
     const slot = input.closest('label').querySelector('.contact__err');
@@ -211,8 +216,8 @@ const scrollToEl = (target) => {
   else el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
 };
 const remix = (i) => {
-  const { type, name, headline, palette, font, layout, radius, motion } = PROJECTS[i].cfg;
-  configurator.load({ type, name, headline, palette, font, layout, radius, motion });
+  const { type, name, headline, palette, font, layout, radius, motion, photos } = PROJECTS[i].cfg;
+  configurator.load({ type, name, headline, palette, font, layout, radius, motion, photos });
   configurator.status(`Loaded “${PROJECTS[i].title}” — make it yours.`);
   scrollToEl('#pitstop');
 };
@@ -309,7 +314,7 @@ burger.addEventListener('click', () => {
     layer.style.webkitMaskImage = url;
     layer.style.maskImage = url;
   }, 'image/png');
-  if (!reduced) gsap.to(layer, { rotation: 5, scale: 1.08, xPercent: -2, duration: 40, ease: 'sine.inOut', yoyo: true, repeat: -1, transformOrigin: '50% 50%' });
+  if (!reduced && !isMobile()) gsap.to(layer, { rotation: 5, scale: 1.08, xPercent: -2, duration: 40, ease: 'sine.inOut', yoyo: true, repeat: -1, transformOrigin: '50% 50%' });
 })();
 
 // ------------------------------------------------------------------ section themes (page colour shifts)
@@ -328,7 +333,7 @@ function setTheme(i) {
   if (i === themeIdx) return;
   themeIdx = i;
   const t = THEMES[i];
-  gsap.to(html, { '--page-bg': t.bg, '--nav-fg': t.nav, '--nav-pill': t.pill, '--contour': t.contour, '--line-ghost': t.ghost, duration: reduced ? 0 : 0.8, ease: 'power2.out', overwrite: 'auto' });
+  gsap.to(html, { '--page-bg': t.bg, '--nav-fg': t.nav, '--nav-pill': t.pill, duration: reduced ? 0 : 0.8, ease: 'power2.out', overwrite: 'auto' });
   $('meta[name="theme-color"]').setAttribute('content', t.bg);
   html.dataset.sector = String(i);
 }
@@ -371,20 +376,29 @@ const fontsReady = document.fonts ? Promise.race([document.fonts.ready, new Prom
 let returning = false;
 try { returning = sessionStorage.getItem('lap') === '1'; sessionStorage.setItem('lap', '1'); } catch {}
 const minTime = new Promise((r) => setTimeout(r, reduced ? 0 : returning ? 300 : 900));
+// the page never waits long for WebGL: give the 3D model ~1.8s, otherwise start and let it glide in
+const stagePromise = initStage();
+const attachStage = (s) => {
+  if (!s || stage) return;
+  stage = s;
+  if (import.meta.env.DEV) window.__stage = s;
+  stage.phonePainter = phonePainter;
+  stage.previewDirty = true;
+  buildStageTracks();
+};
 Promise.all([
-  initStage(),
+  Promise.race([stagePromise, new Promise((r) => setTimeout(() => r(null), reduced ? 0 : 1800))]),
   fontsReady.then(() => Promise.all(['900 40px "Archivo Variable"', 'italic 400 40px "Instrument Serif"', '400 40px "Instrument Serif"', '500 20px "JetBrains Mono Variable"', '700 40px "Bricolage Grotesque Variable"'].map((f) => document.fonts.load(f).catch(() => {})))),
   minTime,
 ]).then(([s]) => {
-  stage = s;
-  if (import.meta.env.DEV) window.__stage = s;
+  attachStage(s);
   configurator.paint(0);
   frameCanvases.forEach((k) => paintCanvas(k.c, k.cfg));
   stepCanvases.forEach((k) => paintCanvas(k.c, k.cfg));
-  if (stage) stage.phonePainter = phonePainter;
   setLoad(1);
   setupScroll();
   intro();
+  if (!s) stagePromise.then((late) => { attachStage(late); if (late) gsap.to(late, { intro: 0, duration: 2, ease: 'expo.out' }); });
 });
 
 // the phone shows the mobile version of whichever build is "live"
@@ -533,7 +547,7 @@ function setupScroll() {
 
   // FINISH: chequered flag sweeps, words slam in
   if (!reduced) {
-    gsap.fromTo('.checker', { opacity: 0, scale: 2.2, rotate: -12 }, { opacity: 0.1, scale: 1.3, rotate: 0, ease: 'none', scrollTrigger: { trigger: '#finish', start: 'top bottom', end: 'center center', scrub: true } });
+    gsap.fromTo('.checker', { opacity: 0, yPercent: -12 }, { opacity: 0.1, yPercent: 0, ease: 'none', scrollTrigger: { trigger: '#finish', start: 'top bottom', end: 'center center', scrub: true } });
     gsap.from('#finish-title .wi', { yPercent: 120, skewY: 10, duration: 1.1, ease: 'expo.out', stagger: 0.07, scrollTrigger: { trigger: '#finish-title', start: 'top 80%', toggleActions: 'play none none reverse' } });
     gsap.from('.finish__lede, .contact', { y: 40, opacity: 0, duration: 1, ease: 'expo.out', stagger: 0.12, scrollTrigger: { trigger: '.finish__lede', start: 'top 92%', toggleActions: 'play none none reverse' } });
   }
@@ -573,15 +587,16 @@ function setupScroll() {
   ScrollTrigger.create({ trigger: '#grid', start: 'bottom 40%', onToggle: (s) => html.classList.toggle('show-mcta', s.isActive), end: () => ScrollTrigger.maxScroll(window) + innerHeight });
 
   // page colour per section — created after the speed-run pin so their ranges include its spacing
-  $$('[data-sector]').forEach((sec) => {
+  $$('section[data-sector]').forEach((sec) => {
     const i = +sec.dataset.sector;
-    ScrollTrigger.create({ trigger: sec, start: 'top 78%', end: 'bottom 78%', onToggle: (s) => s.isActive && setTheme(i) });
+    ScrollTrigger.create({ trigger: sec, start: 'top 50%', end: 'bottom 50%', onToggle: (s) => s.isActive && setTheme(i) });
   });
 
   // ---------------------------------------------------------------- racing line + car
   buildRacingLine();
-  ScrollTrigger.addEventListener('refresh', () => { buildRacingLine(); buildStageTracks(); });
+  ScrollTrigger.addEventListener('refresh', () => { buildBands(); buildRacingLine(); buildStageTracks(); });
   ScrollTrigger.refresh();
+  buildBands();
   buildStageTracks();
 
   // velocity-driven bits: skew the speed run, stretch the rails, speed the marquee
@@ -602,6 +617,28 @@ function setupScroll() {
   });
 }
 
+// section colour bands: one slab of colour per section, each overlapping the one above with a
+// slanted leading edge — colour changes travel with the content instead of flipping mid-screen
+function buildBands() {
+  const wrap = $('.bands');
+  const H = document.documentElement.scrollHeight;
+  wrap.style.height = `${H}px`;
+  const slant = Math.min(innerHeight * 0.09, 96);
+  const parts = $$('section[data-sector]').map((sec) => {
+    const box = sec.parentElement.classList.contains('pin-spacer') ? sec.parentElement : sec;
+    const top = box.getBoundingClientRect().top + scrollY;
+    return { i: +sec.dataset.sector, top, bottom: top + box.offsetHeight };
+  });
+  // plain rectangles + a small slanted wedge at each boundary (cheap to composite, no giant clip masks)
+  wrap.innerHTML = parts.map((p, k) => {
+    const t = k === 0 ? 0 : p.top;
+    const h = (k === parts.length - 1 ? H : parts[k + 1].top + 1) - t;
+    const bg = THEMES[p.i].bg;
+    const wedge = k === 0 ? '' : `<div class="band band--wedge" style="top:${p.top - slant + 1}px;height:${slant}px;background:${bg}"></div>`;
+    return `<div class="band" style="top:${t}px;height:${h}px;background:${bg}"></div>${wedge}`;
+  }).join('');
+}
+
 // racing line: a smooth line that weaves down the page, skips the speed-run pin, and a car rides it
 let linePath = null, lineLen = 0, lineSamples = [];
 function buildRacingLine() {
@@ -614,7 +651,7 @@ function buildRacingLine() {
   // the line keeps to a margin "lane" inside each section and only swaps sides in the gaps between sections
   const lane = (side) => (side ? W - Math.max(18, W * 0.025) : Math.max(18, W * 0.025));
   const pts = [[lane(false), vh * 1.02]];
-  const run = (el, side, padTop = 0.18, padBot = 0.14) => {
+  const run = (el, side, padTop = 0.07, padBot = 0.05) => {
     const [a, b] = span(el);
     const y0 = a + vh * padTop, y1 = b - vh * padBot;
     const n = Math.max(1, Math.round((y1 - y0) / (vh * 0.7)));
@@ -627,7 +664,7 @@ function buildRacingLine() {
   const [s2a, s2b] = span($('#sector2'));
   pts.push([-80, s2a + vh * 0.2], [-80, s2b - vh * 0.2]); // through the speed run: off-screen, speedlines take over
   run($('#sector3'), true);
-  run($('#pitstop'), false, 0.1, 0.1);
+  run($('#pitstop'), false);
   run($('#podium'), true);
   run($('#finish'), false, 0.12, 0.3);
   pts.push([W * 0.5, H - 30]);
@@ -673,8 +710,10 @@ function buildStageTracks() {
   // the phone's screen faces the camera at every resting keyframe (ry ≈ n·2π); full spins happen in between
   const fin = $('#finish'), footH = $('.footer').offsetHeight;
   stage.setTrack('phone', mob ? [
-    { y: 0, s: S({ x: 0.05, y: 0.2, size: 0.42, rx: 0.1, ry: -0.4, rz: 0.08 }) },
-    { y: docTop(s1), s: S({ x: 0.3, y: 0.34, size: 0.22, ry: TAU - 0.45, rz: -0.1 }) },
+    // phones: the device lives in the empty band above the headline, then bows out before body copy
+    { y: 0, s: S({ x: 0.04, y: 0.27, size: 0.3, rx: 0.1, ry: -0.4, rz: 0.08 }) },
+    { y: docTop(grid) + grid.offsetHeight * 0.45, s: S({ x: 0.3, y: 0.55, size: 0.24, ry: -1.2, o: 0 }) },
+    { y: s2a - vh * 0.3, s: S({ x: -0.7, y: -0.36, size: 0.2, rx: 0.2, ry: TAU * 2 - 0.3, rz: -0.2, o: 0 }) },
     { y: s2a, s: S({ x: -0.7, y: -0.36, size: 0.2, rx: 0.2, ry: TAU * 2 - 0.3, rz: -0.2 }) },
     { y: s2b, s: S({ x: 0.7, y: -0.36, size: 0.2, rx: 0.2, ry: TAU * 3 - 0.3, rz: -0.2 }) },
     { y: docTop(s3), s: S({ x: 0.6, y: 0.7, size: 0.2, o: 0 }) },
@@ -698,7 +737,10 @@ function buildStageTracks() {
   stage.setTrack('laptop', [
     { y: 0, s: S({ x: devX, y: -1.2, size: 0.3, rx: 0.6, lid: 0, o: 0 }) },
     { y: docTop(s3) - vh * 0.6, s: S({ x: devX, y: -1.0, size: mob ? 0.7 : 0.38, rx: 0.7, ry: -0.6, lid: 0, o: 0 }) },
-    { y: docTop(s3) - vh * 0.1, s: S({ x: devX, y: -0.75, size: mob ? 0.7 : 0.38, rx: 0.7, ry: -0.6, lid: 0 }) },
+    // desktop: rises from below; phones: fades in already in its slot above the copy
+    mob
+      ? { y: devY - vh * 0.25, s: S({ x: devX, y: 0.12, size: (dev.width / W) * 0.9, rx: 0.32, ry: -0.42, lid: 0.2, o: 0 }) }
+      : { y: docTop(s3) - vh * 0.1, s: S({ x: devX, y: -0.75, size: 0.38, rx: 0.7, ry: -0.6, lid: 0 }) },
     { y: devY, s: S({ x: devX, y: mob ? 0.12 : 0, size: (dev.width / W) * (mob ? 0.9 : 0.92), rx: 0.32, ry: -0.42, lid: 1 }) },
     { y: devY + vh * 0.5, s: S({ x: devX, y: 0.05, size: (dev.width / W) * 0.92, rx: 0.3, ry: -0.2, lid: 1 }) },
     { y: devY + vh * 1.3, s: S({ x: 0.7, y: -0.9, size: 0.3, rx: 0.5, lid: 0.2, o: 0 }) },

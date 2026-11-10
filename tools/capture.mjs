@@ -8,15 +8,21 @@ import path from 'node:path';
 const url = process.argv[2] || 'http://localhost:5173/';
 const out = process.argv[3] || 'shots';
 fs.mkdirSync(out, { recursive: true });
-const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ args: process.env.CAPTURE_GL === 'swiftshader' ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] });
 const errors = [];
 
 async function run(name, viewport, isMobile) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: 1, isMobile, hasTouch: isMobile, reducedMotion: 'no-preference' });
-  const page = await ctx.newPage();
-  page.on('pageerror', (e) => errors.push(`[${name}] ${e.message}`));
-  page.on('console', (m) => m.type() === 'error' && errors.push(`[${name}] console: ${m.text()}`));
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  const open = async () => {
+    const p = await ctx.newPage();
+    p.on('pageerror', (e) => errors.push(`[${name}] ${e.message}`));
+    p.on('console', (m) => m.type() === 'error' && errors.push(`[${name}] console: ${m.text()}`));
+    await p.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // ready = intro finished (loader gone, scrolling unlocked, pins built)
+    await p.waitForFunction(() => !document.querySelector('.loader') && !document.body.classList.contains('is-loading') && document.querySelector('.pin-spacer'), null, { timeout: 60000 }).catch(() => {});
+    return p;
+  };
+  let page = await open();
   await page.waitForTimeout(7000);
   await page.screenshot({ path: path.join(out, `${name}-00-grid.png`) });
   const stops = await page.evaluate(() => {
@@ -43,11 +49,19 @@ async function run(name, viewport, isMobile) {
     ].map(([k, y]) => [k, Math.round(y)]);
   });
   let n = 1;
+  let shots = 0;
   for (const [key, y] of stops) {
+    // software WebGL slows down over a long session: start a fresh page every few stops
+    if (shots && shots % 4 === 0) {
+      await page.close();
+      page = await open();
+      await page.waitForTimeout(1500);
+    }
+    shots++;
     await page.evaluate((y) => (window.__lenis ? window.__lenis.scrollTo(y, { immediate: true }) : window.scrollTo(0, y)), y);
     for (let i = 0; i < 4; i++) { await page.waitForTimeout(250); await page.evaluate(() => window.__stage && (window.__stage.snapNext = true)); }
     await page.waitForTimeout(1800);
-    await page.screenshot({ path: path.join(out, `${name}-${String(n++).padStart(2, '0')}-${key}.png`) });
+    await page.screenshot({ path: path.join(out, `${name}-${String(n++).padStart(2, '0')}-${key}.png`), timeout: 90000 });
   }
   await ctx.close();
 }

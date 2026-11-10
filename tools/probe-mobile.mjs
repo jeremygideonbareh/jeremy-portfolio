@@ -2,13 +2,15 @@
 // usage: node tools/probe-mobile.mjs "#pitstop"
 import { chromium } from 'playwright';
 const sel = process.argv[2] || '#pitstop';
-const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
-const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1, reducedMotion: 'no-preference' });
+const browser = await chromium.launch({ args: process.env.CAPTURE_GL === 'swiftshader' ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const desk = process.argv[3] === 'desktop';
+const ctx = await browser.newContext({ viewport: desk ? { width: 1440, height: 900 } : { width: 390, height: 844 }, isMobile: !desk, hasTouch: !desk, deviceScaleFactor: 1, reducedMotion: 'no-preference' });
 const page = await ctx.newPage();
 page.on('pageerror', (e) => console.log('pageerror', e.message));
 page.on('console', (m) => ['warning', 'error'].includes(m.type()) && console.log(m.type(), m.text().slice(0, 300)));
 await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(6000);
+if (process.argv[4]) await page.addStyleTag({ content: process.argv[4] });
 console.log('before', await page.evaluate(() => new Promise((r) => { const t0 = performance.now(); let n = 0; const f = () => { n++; if (performance.now() - t0 < 2000) requestAnimationFrame(f); else r(`${n} frames/2s`); }; requestAnimationFrame(f); })));
 await page.evaluate((s) => { const el = document.querySelector(s); window.__lenis.scrollTo(el.getBoundingClientRect().top + scrollY + 2, { immediate: true }); }, sel);
 await page.waitForTimeout(1500);
@@ -17,4 +19,6 @@ const res = await Promise.race([
   new Promise((r) => setTimeout(() => r('evaluate timed out (main thread blocked?)'), 20000)),
 ]);
 console.log('after', JSON.stringify(res));
+const t0 = Date.now();
+try { await page.screenshot({ path: process.env.TEMP + '/shot-test.png', timeout: 60000 }); console.log('screenshot ms', Date.now() - t0); } catch (e) { console.log('screenshot failed', e.message.split('\n')[0]); }
 await browser.close();

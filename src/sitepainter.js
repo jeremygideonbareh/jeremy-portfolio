@@ -6,6 +6,35 @@ import { PALETTES, FONTS, DEFAULT_HEADLINES } from './config.js';
 
 const MOTION_AMP = { calm: 0.35, lively: 1, max: 2.2 };
 
+// ---- photo cache: concept builds can use real images (cfg.photos); repaint when they arrive
+const IMG = new Map();
+const imgListeners = new Set();
+export function onImagesReady(fn) { imgListeners.add(fn); return () => imgListeners.delete(fn); }
+function photo(url) {
+  if (!url) return null;
+  let rec = IMG.get(url);
+  if (!rec) {
+    const im = new Image();
+    im.decoding = 'async';
+    rec = { im, ok: false };
+    im.onload = () => { rec.ok = true; imgListeners.forEach((f) => f(url)); };
+    im.src = url;
+    IMG.set(url, rec);
+  }
+  return rec.ok ? rec.im : null;
+}
+export function preloadPhotos(urls) { urls.forEach(photo); }
+function drawCover(ctx, im, x, y, w, h, r) {
+  const s = Math.max(w / im.width, h / im.height);
+  const sw = w / s, sh = h / s;
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, Math.max(0, Math.min(r, h / 2, w / 2)));
+  ctx.clip();
+  ctx.drawImage(im, (im.width - sw) / 2, (im.height - sh) / 2, sw, sh, x, y, w, h);
+  ctx.restore();
+}
+
 function luminance(hex) {
   const n = parseInt(hex.slice(1), 16);
   return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
@@ -234,23 +263,32 @@ function paintVisual(ctx, cfg, b, pal, font, r, t, amp, e, layout) {
       const cy = b.y + Math.floor(i / cols) * (ch + gap) + (1 - e(0.3 + i * 0.08)) * 60;
       ctx.globalAlpha = e(0.3 + i * 0.08);
       rr(ctx, cx, cy, cw, ch, r, pal.surface);
-      // product form (simple ceramic silhouettes = UI product shots)
-      const px = cx + cw / 2, py = cy + ch * 0.42 + float(i);
-      const s = Math.min(cw, ch) * 0.22;
-      ctx.fillStyle = i % 2 ? pal.accent : pal.ink;
-      ctx.beginPath();
-      if (i === 0) { ctx.ellipse(px, py + s * 0.3, s * 0.75, s, 0, 0, Math.PI * 2); ctx.fill(); rr(ctx, px - s * 0.25, py - s * 1.2, s * 0.5, s * 0.6, s * 0.1, ctx.fillStyle); }
-      else if (i === 1) { rr(ctx, px - s * 0.7, py - s * 0.7, s * 1.4, s * 1.5, s * 0.25, ctx.fillStyle); ctx.lineWidth = s * 0.18; ctx.strokeStyle = ctx.fillStyle; ctx.beginPath(); ctx.arc(px + s * 0.8, py, s * 0.42, -1.2, 1.2); ctx.stroke(); }
-      else if (i === 2) { ctx.ellipse(px, py, s * 1.1, s * 0.55, 0, 0, Math.PI); ctx.fill(); rr(ctx, px - s * 1.1, py - s * 0.08, s * 2.2, s * 0.16, 4, ctx.fillStyle); }
-      else { ctx.ellipse(px, py, s * 1.05, s * 0.32, 0, 0, Math.PI * 2); ctx.fill(); }
+      const shot = photo(cfg.photos?.[i]);
+      if (shot) {
+        // real product photography fills the card above the label strip
+        drawCover(ctx, shot, cx, cy, cw, ch * 0.74, r);
+      } else {
+        // product form (simple silhouettes until photography loads)
+        const px = cx + cw / 2, py = cy + ch * 0.42 + float(i);
+        const s = Math.min(cw, ch) * 0.22;
+        ctx.fillStyle = i % 2 ? pal.accent : pal.ink;
+        ctx.beginPath();
+        if (i === 0) { ctx.ellipse(px, py + s * 0.3, s * 0.75, s, 0, 0, Math.PI * 2); ctx.fill(); rr(ctx, px - s * 0.25, py - s * 1.2, s * 0.5, s * 0.6, s * 0.1, ctx.fillStyle); }
+        else if (i === 1) { rr(ctx, px - s * 0.7, py - s * 0.7, s * 1.4, s * 1.5, s * 0.25, ctx.fillStyle); ctx.lineWidth = s * 0.18; ctx.strokeStyle = ctx.fillStyle; ctx.beginPath(); ctx.arc(px + s * 0.8, py, s * 0.42, -1.2, 1.2); ctx.stroke(); }
+        else if (i === 2) { ctx.ellipse(px, py, s * 1.1, s * 0.55, 0, 0, Math.PI); ctx.fill(); rr(ctx, px - s * 1.1, py - s * 0.08, s * 2.2, s * 0.16, 4, ctx.fillStyle); }
+        else { ctx.ellipse(px, py, s * 1.05, s * 0.32, 0, 0, Math.PI * 2); ctx.fill(); }
+      }
       ctx.fillStyle = pal.ink;
-      ctx.font = `600 ${Math.max(14, ch * 0.075)}px ${font.body}`;
+      const fs = Math.max(11, Math.min(ch * 0.075, cw * 0.11));
+      ctx.font = `600 ${fs}px ${font.body}`;
       ctx.letterSpacing = '0px';
-      ctx.fillText(items[i][0], cx + cw * 0.08, cy + ch * 0.86);
-      ctx.fillStyle = pal.muted;
-      ctx.textAlign = 'right';
-      ctx.fillText(items[i][1], cx + cw * 0.92, cy + ch * 0.86);
-      ctx.textAlign = 'left';
+      ctx.fillText(items[i][0], cx + cw * 0.08, cy + ch * 0.88);
+      if (cw > 90) { // narrow phone tiles: name only, no price collision
+        ctx.fillStyle = pal.muted;
+        ctx.textAlign = 'right';
+        ctx.fillText(items[i][1], cx + cw * 0.92, cy + ch * 0.88);
+        ctx.textAlign = 'left';
+      }
       if (i === 0) {
         rr(ctx, cx + cw * 0.08, cy + ch * 0.08, cw * 0.32, ch * 0.09, r * 0.6, pal.accent);
         ctx.fillStyle = '#fff';
@@ -275,6 +313,14 @@ function paintVisual(ctx, cfg, b, pal, font, r, t, amp, e, layout) {
       g.addColorStop(Math.min(0.95, 0.55 + shift), pal.surface);
       g.addColorStop(1, pal.ink);
       rr(ctx, tx, ty, tw, th, r, g);
+      const shot = photo(cfg.photos?.[i]);
+      if (shot) {
+        drawCover(ctx, shot, tx, ty, tw, th, r);
+        const fade = ctx.createLinearGradient(0, ty + th * 0.55, 0, ty + th);
+        fade.addColorStop(0, 'rgba(0,0,0,0)');
+        fade.addColorStop(1, 'rgba(0,0,0,0.55)');
+        rr(ctx, tx, ty, tw, th, r, fade);
+      }
       ctx.fillStyle = '#ffffff';
       ctx.font = `${font.weight} ${Math.max(14, th * 0.09)}px ${font.display}`;
       ctx.fillText(labels[i], tx + tw * 0.06, ty + th - th * 0.08);
@@ -343,7 +389,12 @@ function paintVisual(ctx, cfg, b, pal, font, r, t, amp, e, layout) {
     const cy = b.y + (horizontal ? 0 : i * (ch + gap)) + (1 - e(0.3 + i * 0.08)) * 50 + float(i) * 0.5;
     ctx.globalAlpha = e(0.3 + i * 0.08);
     rr(ctx, cx, cy, cw, ch, r, i === 0 ? pal.accent : pal.surface);
-    const ink = i === 0 ? '#ffffff' : pal.ink;
+    const shot = photo(cfg.photos?.[i]);
+    if (shot) {
+      drawCover(ctx, shot, cx, cy, cw, ch, r);
+      rr(ctx, cx, cy, cw, ch, r, 'rgba(0,0,0,0.38)');
+    }
+    const ink = i === 0 || shot ? '#ffffff' : pal.ink;
     ctx.fillStyle = ink;
     const fs = Math.max(16, Math.min(ch * 0.2, cw * 0.09));
     ctx.font = `${font.weight} ${fs}px ${font.display}`;

@@ -1,0 +1,14 @@
+public/images/ines-1.webp — "fish_hoek_beach" by Poly Haven (CC0), https://polyhaven.com/a/fish_hoek_beach
+public/images/ines-2.webp — "gray_pier" by Poly Haven (CC0), https://polyhaven.com/a/gray_pier
+public/images/ines-3.webp — "cloudy_cliffside_road" by Poly Haven (CC0), https://polyhaven.com/a/cloudy_cliffside_road
+public/images/ines-4.webp — "beach_cloudy_bridge" by Poly Haven (CC0), https://polyhaven.com/a/beach_cloudy_bridge
+public/images/rhea-1.webp — "concrete_tunnel_02" by Poly Haven (CC0), https://polyhaven.com/a/concrete_tunnel_02
+public/images/rhea-2.webp — "hangar_interior" by Poly Haven (CC0), https://polyhaven.com/a/hangar_interior
+public/images/rhea-3.webp — "events_hall_interior" by Poly Haven (CC0), https://polyhaven.com/a/events_hall_interior
+public/images/rhea-4.webp — "afrikaans_church_interior" by Poly Haven (CC0), https://polyhaven.com/a/afrikaans_church_interior
+public/images/bloom-1.webp — "glasshouse_interior" by Poly Haven (CC0), https://polyhaven.com/a/glasshouse_interior
+public/images/bloom-2.webp — "abandoned_greenhouse" by Poly Haven (CC0), https://polyhaven.com/a/abandoned_greenhouse
+public/images/bloom-3.webp — "green_sanctuary" by Poly Haven (CC0), https://polyhaven.com/a/green_sanctuary
+public/images/bloom-4.webp — "garden_nook" by Poly Haven (CC0), https://polyhaven.com/a/garden_nook
+public/images/northline-1.webp — "comfy_cafe" by Poly Haven (CC0), https://polyhaven.com/a/comfy_cafe
+public/images/northline-2.webp — "german_town_street" by Poly Haven (CC0), https://polyhaven.com/a/german_town_street

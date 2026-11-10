@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 const expr = process.argv[2];
 const url = process.argv[3] || 'http://localhost:5173/';
-const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const browser = await chromium.launch({ args: process.env.CAPTURE_GL === 'swiftshader' ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] });
 const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' })).newPage();
 page.on('pageerror', (e) => console.log('pageerror', e.message));
 page.on('console', (m) => ['warning', 'error'].includes(m.type()) && console.log(m.type(), m.text().slice(0, 400)));

@@ -21,6 +21,7 @@
   </div>
 
   <!-- ============ STAGE ============ -->
+  <div class="bands" aria-hidden="true"></div>
   <div class="bg" aria-hidden="true"><div class="contours"></div></div>
   <!-- trackside racing line, drawn down the whole page as you scroll (sits behind the devices) -->
   <svg class="racing-line" aria-hidden="true"><path class="racing-line__ghost" /><path class="racing-line__path" /></svg>
@@ -54,7 +55,7 @@
     <a href="#sector2" data-scroll><span class="mono">S2</span>Design</a>
     <a href="#sector3" data-scroll><span class="mono">S3</span>Build</a>
     <a href="#pitstop" data-scroll><span class="mono">PIT</span>Build yours</a>
-    <a href="#podium" data-scroll><span class="mono">P1</span>Results</a>
+    <a href="#podium" data-scroll><span class="mono">P1</span>Line-up</a>
     <a href="#finish" data-scroll><span class="mono">FIN</span>Start a project</a>
     <button class="nav__motion mono" type="button" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Motion <b class="nav__motion-state">On</b></button>
   </div>
@@ -229,6 +230,26 @@
         <ol class="classification__rows"></ol>
       </div>
       <div class="hover-preview" aria-hidden="true"><canvas width="640" height="400"></canvas></div>
+
+      <div class="engineer" aria-labelledby="eng-title">
+        <p class="sector-tag mono"><b>ENG</b> The engineer</p>
+        <div class="engineer__grid">
+          <div>
+            <h3 class="engineer__title" id="eng-title"><span class="g">ONE</span> <em>driver,</em><br /><span class="g">START TO FINISH.</span></h3>
+            <p class="engineer__bio">I&rsquo;m Jeremy, an independent designer and developer. I work with small brands, studios and founders who want a site that looks considered and performs. You deal with one person from the first call to launch day, so nothing gets lost between a designer and a developer.</p>
+          </div>
+          <div class="engineer__col">
+            <h4 class="mono">How a project runs</h4>
+            <ol class="race-steps">
+              <li><b class="mono">01</b><span><strong>Call &amp; brief.</strong> 30 minutes, then a written plan and a fixed quote.</span></li>
+              <li><b class="mono">02</b><span><strong>Design in motion.</strong> You see real type, colour and animation before sign-off.</span></li>
+              <li><b class="mono">03</b><span><strong>Build &amp; launch.</strong> Tested on real devices, handed over with launch support.</span></li>
+            </ol>
+            <h4 class="mono">Toolbox</h4>
+            <ul class="toolbox mono"><li>Shopify</li><li>Headless CMS</li><li>Vite</li><li>GSAP</li><li>Three.js</li><li>Blender</li></ul>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- FINISH -->
@@ -264,7 +285,8 @@
     <div class="footer__row mono">
       <span>&copy; <span class="year"></span> Jeremy — websites, stores, portfolios &amp; apps</span>
       <span>Local time <b class="clock">--:--</b></span>
-      <span>Devices modelled in Blender · Three.js · GSAP</span>
+      <span class="footer__socials"></span>
+      <span>Devices &amp; ceramics rendered in Blender · Photos: Poly Haven (CC0)</span>
       <a href="#grid" data-scroll>Back to the grid ↑</a>
     </div>
   </footer>

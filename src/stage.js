@@ -172,7 +172,10 @@ export class Stage {
       this.previewTex.needsUpdate = true;
       this.previewDirty = false;
     }
-    this.renderer.render(this.scene, this.camera);
+    // nothing on stage → clear once, then stop drawing until a device comes back
+    const anything = this.phone.visible || this.laptop.visible;
+    if (anything || !this.wasEmpty) this.renderer.render(this.scene, this.camera);
+    this.wasEmpty = !anything;
   }
 
   /** world-space viewport size at the device plane (for layout maths in main.js) */

@@ -14,7 +14,9 @@ export class Configurator {
     this.summaryEl = summaryEl;
     this.statusEl = statusEl;
     this.onChange = onChange || (() => {});
-    this.state = { ...DEFAULT_CONFIG, ...readHash() };
+    const shared = readHash();
+    this.state = { ...DEFAULT_CONFIG, ...shared };
+    if (Object.keys(shared).length) delete this.state.photos; // a shared setup shows its own layout, not the demo photos
     this.enter = 1;
     this.enterStart = 0;
     this.active = true;
@@ -84,6 +86,8 @@ export class Configurator {
   set(patch, replay = true) {
     const prevType = this.state.type;
     Object.assign(this.state, patch);
+    // photography belongs to a specific concept; drop it when the visitor changes what they're building
+    if (patch.type && patch.type !== prevType) delete this.state.photos;
     if (patch.type && patch.type !== prevType && !this.state.headline) {
       this.form.elements.headline.placeholder = DEFAULT_HEADLINES[this.state.type];
     }
@@ -96,7 +100,7 @@ export class Configurator {
   }
 
   load(cfg) {
-    this.state = { ...DEFAULT_CONFIG, ...cfg, headline: cfg.headline || '' };
+    this.state = { ...DEFAULT_CONFIG, photos: undefined, ...cfg, headline: cfg.headline || '' };
     this.#syncForm();
     this.enter = 0;
     this.enterStart = this.time;
