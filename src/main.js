@@ -449,7 +449,7 @@ function setupScroll() {
   if (!reduced) {
     gsap.to('.hero-title .line:first-child', { xPercent: -18, ease: 'none', scrollTrigger: { trigger: '#grid', start: 'top top', end: 'bottom top', scrub: true } });
     gsap.to('.hero-title .line--2', { xPercent: 14, ease: 'none', scrollTrigger: { trigger: '#grid', start: 'top top', end: 'bottom top', scrub: true } });
-    gsap.to('.grid__foot', { y: -60, opacity: 0, ease: 'none', scrollTrigger: { trigger: '#grid', start: '35% top', end: '80% top', scrub: true } });
+    gsap.to('.grid__foot', { y: -60, opacity: 0, ease: 'none', scrollTrigger: { trigger: '#grid', start: '22% top', end: '62% top', scrub: true } });
   }
 
   // headings race in from the side
@@ -589,7 +589,8 @@ function setupScroll() {
   // page colour per section — created after the speed-run pin so their ranges include its spacing
   $$('section[data-sector]').forEach((sec) => {
     const i = +sec.dataset.sector;
-    ScrollTrigger.create({ trigger: sec, start: 'top 50%', end: 'bottom 50%', onToggle: (s) => s.isActive && setTheme(i) });
+    // enter/enterBack fire even when an instant jump lands exactly on a boundary
+    ScrollTrigger.create({ trigger: sec, start: 'top 50%', end: 'bottom 50%', onEnter: () => setTheme(i), onEnterBack: () => setTheme(i) });
   });
 
   // ---------------------------------------------------------------- racing line + car
@@ -719,7 +720,7 @@ function buildStageTracks() {
     { y: docTop(s3), s: S({ x: 0.6, y: 0.7, size: 0.2, o: 0 }) },
   ] : [
     { y: 0, s: S({ x: 0.27, y: -0.02, size: 0.62, rx: 0.08, ry: -0.5, rz: 0.1 }) },
-    { y: docTop(grid) + grid.offsetHeight - vh * 0.5, s: S({ x: 0.3, y: 0.04, size: 0.56, rx: 0.2, ry: -1.1, rz: 0.04 }) },
+    { y: docTop(grid) + grid.offsetHeight - vh * 0.5, s: S({ x: 0.34, y: 0.08, size: 0.52, rx: 0.2, ry: -1.1, rz: 0.04 }) },
     { y: docTop(s1) + s1.offsetHeight / 2 - vh / 2, s: S({ x: 0.34, y: 0.02, size: 0.5, rx: 0.1, ry: TAU - 0.55, rz: -0.1 }) },
     { y: s2a, s: S({ x: -0.62, y: -0.3, size: 0.3, rx: 0.25, ry: TAU * 2 - 0.3, rz: -0.3 }) },
     { y: s2b, s: S({ x: 0.62, y: -0.3, size: 0.3, rx: 0.25, ry: TAU * 3 - 0.3, rz: -0.3 }) },
@@ -742,8 +743,13 @@ function buildStageTracks() {
       ? { y: devY - vh * 0.25, s: S({ x: devX, y: 0.12, size: (dev.width / W) * 0.9, rx: 0.32, ry: -0.42, lid: 0.2, o: 0 }) }
       : { y: docTop(s3) - vh * 0.1, s: S({ x: devX, y: -0.75, size: 0.38, rx: 0.7, ry: -0.6, lid: 0 }) },
     { y: devY, s: S({ x: devX, y: mob ? 0.12 : 0, size: (dev.width / W) * (mob ? 0.9 : 0.92), rx: 0.32, ry: -0.42, lid: 1 }) },
-    { y: devY + vh * 0.5, s: S({ x: devX, y: 0.05, size: (dev.width / W) * 0.92, rx: 0.3, ry: -0.2, lid: 1 }) },
-    { y: devY + vh * 1.3, s: S({ x: 0.7, y: -0.9, size: 0.3, rx: 0.5, lid: 0.2, o: 0 }) },
+    // phones: scroll up with its slot, then bow out; desktop: brief hold, gone before telemetry
+    mob
+      ? { y: devY + vh * 0.5, s: S({ x: devX, y: 0.62, size: (dev.width / W) * 0.9, rx: 0.32, ry: -0.42, lid: 1 }) }
+      : { y: devY + vh * 0.5, s: S({ x: devX, y: 0.05, size: (dev.width / W) * 0.92, rx: 0.3, ry: -0.2, lid: 1 }) },
+    mob
+      ? { y: devY + vh * 0.8, s: S({ x: devX, y: 0.92, size: (dev.width / W) * 0.9, rx: 0.32, ry: -0.42, lid: 1, o: 0 }) }
+      : { y: devY + vh * 0.9, s: S({ x: 0.7, y: -0.9, size: 0.3, rx: 0.5, lid: 0.2, o: 0 }) },
     { y: pitY - vh * 0.7, s: S({ x: 0.6, y: -0.8, size: 0.36, rx: 0.5, ry: -0.6, lid: 0, o: mob ? 0 : 0 }) },
     { y: pitY - vh * 0.15, s: S({ x: 0.3, y: -0.2, size: 0.44, rx: 0.3, ry: -0.3, lid: 0.6, o: mob ? 0 : 1 }) },
     { y: pitY, s: S({ x: 0.17, y: 0.06, size: 0.44, rx: 0.1, ry: -0.12, lid: 1, o: mob ? 0 : 1 }) },
