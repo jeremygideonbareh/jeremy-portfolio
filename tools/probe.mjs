@@ -7,7 +7,7 @@ const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--ena
 const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' })).newPage();
 page.on('pageerror', (e) => console.log('pageerror', e.message));
 page.on('console', (m) => ['warning', 'error'].includes(m.type()) && console.log(m.type(), m.text().slice(0, 400)));
-await page.goto(url, { waitUntil: 'networkidle' });
+await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
 await page.waitForTimeout(7000);
 console.log(await page.evaluate(expr));
 await browser.close();

@@ -4,25 +4,26 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-                    "dev": "vite",
-                    "build": "vite build",
-                    "preview": "vite preview --port 4173 --strictPort",
-                    "blender": "blender -b -P blender/build_island_v2.py -- public",
-                    "optimize": "gltf-transform optimize blender/out/island-raw.glb public/models/island.glb --compress meshopt --texture-compress webp --texture-size 4096 --flatten false --join false --instance false --palette false --simplify false --prune-attributes false",
-                    "capture": "node tools/capture.mjs"
-                },
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview --port 4173 --strictPort",
+        "blender": "blender -b -P blender/build_island_v2.py -- public",
+        "optimize": "gltf-transform optimize blender/out/island-raw.glb public/models/island.glb --compress meshopt --texture-compress webp --texture-size 4096 --flatten false --join false --instance false --palette false --simplify false --prune-attributes false",
+        "capture": "node tools/capture.mjs"
+    },
     "dependencies": {
-                         "@fontsource-variable/bricolage-grotesque": "^5.3.0",
-                         "@fontsource-variable/jetbrains-mono": "^5.3.0",
-                         "@fontsource/instrument-serif": "^5.3.0",
-                         "gsap": "^3.15.1",
-                         "iconify-icon": "^3.0.5",
-                         "lenis": "^1.3.27",
-                         "three": "^0.187.0"
-                     },
+        "@fontsource-variable/archivo": "^5.3.0",
+        "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+        "@fontsource-variable/jetbrains-mono": "^5.3.0",
+        "@fontsource/instrument-serif": "^5.3.0",
+        "gsap": "^3.15.1",
+        "iconify-icon": "^3.0.5",
+        "lenis": "^1.3.27",
+        "three": "^0.187.0"
+    },
     "devDependencies": {
-                            "@gltf-transform/cli": "^4.5.1",
-                            "playwright": "^1.65.0",
-                            "vite": "^8.3.7"
-                        }
+        "@gltf-transform/cli": "^4.5.1",
+        "playwright": "^1.65.0",
+        "vite": "^8.3.7"
+    }
 }

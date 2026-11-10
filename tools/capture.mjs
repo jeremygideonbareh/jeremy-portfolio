@@ -1,6 +1,6 @@
-﻿// Screenshot every chapter of the scroll story (desktop + mobile).
+// Screenshot every sector of the Track Day site (desktop + mobile).
 // usage: node tools/capture.mjs [url] [outDir]
-// Needs the dev server (exposes window.__world / window.__lenis).
+// Needs the dev server (exposes window.__stage / window.__lenis).
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -8,7 +8,6 @@ import path from 'node:path';
 const url = process.argv[2] || 'http://localhost:5173/';
 const out = process.argv[3] || 'shots';
 fs.mkdirSync(out, { recursive: true });
-
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const errors = [];
 
@@ -17,32 +16,39 @@ async function run(name, viewport, isMobile) {
   const page = await ctx.newPage();
   page.on('pageerror', (e) => errors.push(`[${name}] ${e.message}`));
   page.on('console', (m) => m.type() === 'error' && errors.push(`[${name}] console: ${m.text()}`));
-  await page.goto(url, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(6500);
-  await page.evaluate(() => window.__world && (window.__world.snapNext = true));
-  await page.waitForTimeout(800);
-  await page.screenshot({ path: path.join(out, `${name}-00-hero.png`) });
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(7000);
+  await page.screenshot({ path: path.join(out, `${name}-00-grid.png`) });
   const stops = await page.evaluate(() => {
-    const tr = window.__world?.track || [];
-    const seen = new Set();
-    return tr.filter((t) => (seen.has(t.key) ? false : seen.add(t.key))).map((t) => ({ key: t.key, y: Math.round(t.y) }));
+    const top = (el) => el.getBoundingClientRect().top + scrollY;
+    const vh = innerHeight;
+    const s2 = document.querySelector('#sector2');
+    const sp = s2.parentElement.classList.contains('pin-spacer') ? s2.parentElement : s2;
+    const dev = document.querySelector('.s3__device');
+    return [
+      ['grid-half', vh * 0.55],
+      ['s1-statement', top(document.querySelector('.statement')) - vh * 0.25],
+      ['s1-notes', top(document.querySelector('.notes')) - vh * 0.35],
+      ['s2-start', top(sp) + 4],
+      ['s2-mid', top(sp) + (sp.offsetHeight - vh) * 0.45],
+      ['s2-end', top(sp) + (sp.offsetHeight - vh) * 0.95],
+      ['s3-device', top(dev) + dev.offsetHeight / 2 - vh / 2],
+      ['s3-telemetry', top(document.querySelector('.telemetry')) - vh * 0.2],
+      ['s3-garage', top(document.querySelector('.garage')) - vh * 0.15],
+      ['pit', top(document.querySelector('#pitstop')) + 2],
+      ['podium', top(document.querySelector('.podium__steps')) - vh * 0.3],
+      ['classification', top(document.querySelector('.classification')) - vh * 0.25],
+      ['finish', top(document.querySelector('#finish')) + vh * 0.05],
+      ['footer', document.documentElement.scrollHeight],
+    ].map(([k, y]) => [k, Math.round(y)]);
   });
-  // a few in-between frames to see transitions
-  const mids = [];
-  for (let i = 0; i < stops.length - 1; i++) if (['hero', 'monitor', 'work2'].includes(stops[i].key)) mids.push({ key: `${stops[i].key}-to-${stops[i + 1].key}`, y: Math.round((stops[i].y + stops[i + 1].y) / 2) });
-  const all = [...stops.slice(1), ...mids].sort((a, b) => a.y - b.y);
   let n = 1;
-  for (const s of all) {
-    await page.evaluate((y) => window.__lenis ? window.__lenis.scrollTo(y, { immediate: true }) : window.scrollTo(0, y), s.y + 2);
-    // software WebGL renders slowly: snap the camera instead of waiting for damping
-    for (let i = 0; i < 3; i++) { await page.waitForTimeout(250); await page.evaluate(() => window.__world && (window.__world.snapNext = true)); }
-    await page.waitForTimeout(2200);
-    await page.screenshot({ path: path.join(out, `${name}-${String(n++).padStart(2, '0')}-${s.key}.png`) });
+  for (const [key, y] of stops) {
+    await page.evaluate((y) => (window.__lenis ? window.__lenis.scrollTo(y, { immediate: true }) : window.scrollTo(0, y)), y);
+    for (let i = 0; i < 4; i++) { await page.waitForTimeout(250); await page.evaluate(() => window.__stage && (window.__stage.snapNext = true)); }
+    await page.waitForTimeout(1800);
+    await page.screenshot({ path: path.join(out, `${name}-${String(n++).padStart(2, '0')}-${key}.png`) });
   }
-  // footer
-  await page.evaluate(() => window.__lenis ? window.__lenis.scrollTo(document.documentElement.scrollHeight, { immediate: true }) : window.scrollTo(0, 1e7));
-  await page.waitForTimeout(2000);
-  await page.screenshot({ path: path.join(out, `${name}-${String(n++).padStart(2, '0')}-footer.png`) });
   await ctx.close();
 }
 
