@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jeremy — The Floating Studio (v1)</title>
+  <meta name="description" content="Jeremy designs and builds websites, online stores, portfolios and apps. Scroll onto the floating studio island and configure your own site live." />
+  <meta name="theme-color" content="#0c0a14" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230c0a14'/><rect x='9' y='9' width='14' height='14' rx='3' fill='%23ff5a1f'/></svg>" />
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body class="is-loading">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <!-- ============ PRELOADER ============ -->
+  <div class="loader" aria-hidden="true">
+    <div class="loader__top">
+      <span class="mono">Raising the island</span>
+      <span class="mono loader__coords">N 00.000° · E 00.000°</span>
+    </div>
+    <div class="loader__count"><span class="loader__num">0</span><span class="loader__pct">%</span></div>
+    <div class="loader__bar"><i></i></div>
+    <div class="loader__curtain loader__curtain--a"></div>
+    <div class="loader__curtain loader__curtain--b"></div>
+  </div>
+
+  <!-- ============ 3D WORLD ============ -->
+  <div class="world" aria-hidden="true">
+    <canvas id="world-canvas"></canvas>
+    <!-- Static first frame: rendered in Blender (blender/build_island.py). Used when WebGL or motion is unavailable. -->
+    <img class="world__poster" src="./assets/island-poster.webp" alt="" width="1600" height="1100" />
+    <div class="world__grain"></div>
+    <div class="world__vignette"></div>
+  </div>
+
+
+
+  <!-- ============ CURSOR ============ -->
+  <div class="cursor" aria-hidden="true"><div class="cursor__ring"><span class="cursor__label"></span></div><div class="cursor__dot"></div></div>
+
+  <!-- ============ NAV + HUD ============ -->
+  <header class="nav">
+    <a class="nav__logo" href="#hero" data-scroll aria-label="Jeremy — back to top">
+      <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="nav__name">Jeremy</span>
+    </a>
+    <div class="nav__chapter mono" aria-live="polite"><span class="nav__chapter-num">00</span><span class="nav__chapter-sep">/</span><span class="nav__chapter-name">Sky</span></div>
+    <nav class="nav__links" aria-label="Primary">
+      <button class="nav__motion mono" type="button" aria-pressed="true" title="Toggle animations"><span class="nav__motion-dot" aria-hidden="true"></span>Motion <span class="nav__motion-state">On</span></button>
+      <a href="#zones" data-scroll>Island</a>
+      <a href="#work" data-scroll>Builds</a>
+      <a href="#build" data-scroll>Build yours</a>
+      <a class="btn btn--small magnetic" href="#launch" data-scroll><span>Start a project</span></a>
+    </nav>
+    <button class="nav__burger" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><i></i><i></i></button>
+  </header>
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <a href="#zones" data-scroll>The island</a>
+    <a href="#work" data-scroll>Builds</a>
+    <a href="#process" data-scroll>Process</a>
+    <a href="#build" data-scroll>Build yours</a>
+    <a href="#launch" data-scroll>Start a project</a>
+  </div>
+
+  <div class="motion-note" role="region" aria-label="Motion preference" hidden>
+    <p>Your device asks for reduced motion, so you&rsquo;re seeing the calm version. This site is built as a flight through a 3D island.</p>
+    <div><button class="btn btn--accent btn--small" type="button" data-motion-on><span>Turn motion on</span></button><button class="btn btn--ghost btn--small" type="button" data-motion-dismiss><span>Keep it calm</span></button></div>
+  </div>
+
+  <aside class="hud mono" aria-hidden="true">
+    <div class="hud__row"><span>ALT</span><b class="hud__alt">0000</b><span>m</span></div>
+    <div class="hud__row"><span>HDG</span><b class="hud__hdg">000</b><span>°</span></div>
+    <div class="hud__track"><i class="hud__fill"></i></div>
+    <ol class="hud__dots"></ol>
+  </aside>
+
+  <main id="main">
+    <!-- 00 — HERO -->
+    <section class="hero" id="hero" data-chapter="Sky">
+      <p class="eyebrow mono reveal-up">Independent designer &amp; developer</p>
+      <h1 class="hero__title split" data-split-intro>I build worlds <br />people can <em>click.</em></h1>
+      <div class="hero__foot">
+        <p class="hero__lede reveal-up">Websites, online stores, portfolios and apps — designed, built and launched end&nbsp;to&nbsp;end. Scroll to land on the island where they&rsquo;re&nbsp;made.</p>
+        <div class="hero__ctas reveal-up">
+          <a class="btn btn--accent magnetic" href="#build" data-scroll data-cursor="Play"><span>Build yours live</span><iconify-icon icon="solar:magic-stick-3-linear" aria-hidden="true"></iconify-icon></a>
+          <a class="btn btn--ghost magnetic" href="#zones" data-scroll><span>Explore the island</span><iconify-icon icon="solar:arrow-down-linear" aria-hidden="true"></iconify-icon></a>
+        </div>
+      </div>
+      <div class="hero__scroll mono" aria-hidden="true"><span>Scroll to descend</span><i></i></div>
+    </section>
+
+    <!-- 01 — ARRIVAL / MANIFESTO -->
+    <section class="arrive" id="arrive" data-chapter="Arrival">
+      <p class="eyebrow mono">01 — Arrival</p>
+      <p class="arrive__text fill-text">Every project starts as an empty patch of sky. I shape it into a <em>place</em> — somewhere your customers arrive, look around, and decide to stay.</p>
+      <ul class="arrive__legend mono" aria-label="What is on the island">
+        <li><b>01</b> The Store</li><li><b>02</b> The Gallery</li><li><b>03</b> The Tower</li><li><b>04</b> The Monitor</li>
+      </ul>
+    </section>
+
+    <!-- 02–05 — ZONES (pinned horizontal journey around the island) -->
+    <section class="zones" id="zones" aria-label="What I build">
+      <div class="zones__pin">
+        <div class="zones__track">
+          <article class="zone" data-chapter="The Store" data-zone="store">
+            <div class="zone__card">
+              <p class="zone__num mono"><span>02</span> Zone 01 — The Store</p>
+              <h2 class="split">Online stores that <em>sell</em>.</h2>
+              <p>Shopify and headless storefronts with product pages people linger on, checkout that never gets in the way, and drops that feel like events.</p>
+              <ul class="chips mono"><li>Shopify &amp; headless</li><li>Product storytelling</li><li>Checkout UX</li><li>Drops &amp; launches</li></ul>
+            </div>
+          </article>
+          <article class="zone" data-chapter="The Gallery" data-zone="gallery">
+            <div class="zone__card">
+              <p class="zone__num mono"><span>03</span> Zone 02 — The Gallery</p>
+              <h2 class="split">Portfolios that get you <em>hired</em>.</h2>
+              <p>For photographers, designers, architects and studios: case studies told like stories, image-first layouts, and motion that frames the work instead of fighting it.</p>
+              <ul class="chips mono"><li>Case studies</li><li>Image-led layouts</li><li>CMS you can edit</li><li>Page transitions</li></ul>
+            </div>
+          </article>
+          <article class="zone" data-chapter="The Tower" data-zone="tower">
+            <div class="zone__card">
+              <p class="zone__num mono"><span>04</span> Zone 03 — The Tower</p>
+              <h2 class="split">Apps people <em>open daily</em>.</h2>
+              <p>Web and mobile apps from first wireframe to app-store listing — onboarding that teaches by doing, dashboards that make sense, and micro-interactions that feel alive.</p>
+              <ul class="chips mono"><li>iOS · Android · Web</li><li>Product design</li><li>Dashboards</li><li>Onboarding</li></ul>
+            </div>
+          </article>
+          <article class="zone" data-chapter="The Monitor" data-zone="monitor">
+            <div class="zone__card">
+              <p class="zone__num mono"><span>05</span> Zone 04 — The Monitor</p>
+              <h2 class="split">Websites with a <em>pulse</em>.</h2>
+              <p>Brand sites and landing pages built around one memorable idea, with scroll stories, 3D and motion like this one — fast, accessible and easy to update.</p>
+              <ul class="chips mono"><li>Brand &amp; landing</li><li>3D &amp; WebGL</li><li>Scroll storytelling</li><li>SEO &amp; speed</li></ul>
+            </div>
+          </article>
+        </div>
+        <div class="zones__progress mono" aria-hidden="true"><span class="zones__idx">01</span><i><b></b></i><span>04</span></div>
+      </div>
+    </section>
+
+    <!-- 06 — WORK (pinned horizontal reel) -->
+    <section class="work" id="work" data-chapter="Builds" aria-labelledby="work-title">
+      <div class="work__head">
+        <p class="eyebrow mono">06 — Builds</p>
+        <h2 class="split" id="work-title">Things built <em>on the island</em>.</h2>
+        <p class="work__note">Concept builds showing range across stores, portfolios, apps and sites. Drag, scroll or use the arrow keys.</p>
+      </div>
+      <div class="marquee mono" aria-hidden="true"><div class="marquee__inner">
+        <span>Online stores ✦ Portfolios ✦ Mobile apps ✦ Websites ✦ 3D &amp; motion ✦ </span><span>Online stores ✦ Portfolios ✦ Mobile apps ✦ Websites ✦ 3D &amp; motion ✦ </span>
+      </div></div>
+      <div class="work__pin">
+        <ol class="work__reel" tabindex="0" aria-label="Project reel"></ol>
+      </div>
+    </section>
+
+    <!-- 07 — PROCESS -->
+    <section class="process" id="process" data-chapter="Process" aria-labelledby="process-title">
+      <div class="process__inner">
+        <p class="eyebrow mono">07 — Process</p>
+        <h2 class="split" id="process-title">How a world <em>gets built</em>.</h2>
+        <ol class="process__steps">
+          <li class="step"><span class="step__num mono">01</span><div><h3>Map</h3><p>A short call and a written brief: who arrives, what they need, and what the site must make them do.</p></div></li>
+          <li class="step"><span class="step__num mono">02</span><div><h3>Sketch</h3><p>Wireframes, then a design direction with real type, colour and motion studies. You see it moving before it&rsquo;s built.</p></div></li>
+          <li class="step"><span class="step__num mono">03</span><div><h3>Build</h3><p>Hand-built front end, CMS or Shopify set-up, 3D and animation — tested on real phones, not just a big monitor.</p></div></li>
+          <li class="step"><span class="step__num mono">04</span><div><h3>Launch</h3><p>Domain, analytics, speed and SEO checks, a handover video, and a month of fixes included after go-live.</p></div></li>
+        </ol>
+        <svg class="process__line" viewBox="0 0 4 100" preserveAspectRatio="none" aria-hidden="true"><path d="M2 0 V100" /></svg>
+      </div>
+    </section>
+
+    <!-- 08 — BUILD YOURS (configurator, preview runs on the 3D monitor) -->
+    <section class="build" id="build" data-chapter="Build yours" aria-labelledby="build-title">
+      <div class="build__inner">
+        <div class="build__panel">
+          <p class="eyebrow mono">08 — Build yours</p>
+          <h2 class="split" id="build-title">Design your site <em>right here</em>.</h2>
+          <p class="build__lede">Every change shows up on the island&rsquo;s monitor. When it feels right, send it — it becomes the starting brief for your project.</p>
+
+          <form class="cfg" id="cfg" novalidate>
+            <fieldset class="cfg__group">
+              <legend class="mono">What are we building?</legend>
+              <div class="seg" role="radiogroup" data-key="type">
+                <label><input type="radio" name="type" value="store" checked /><span>Store</span></label>
+                <label><input type="radio" name="type" value="portfolio" /><span>Portfolio</span></label>
+                <label><input type="radio" name="type" value="app" /><span>App</span></label>
+                <label><input type="radio" name="type" value="website" /><span>Website</span></label>
+              </div>
+            </fieldset>
+
+            <div class="cfg__row">
+              <label class="field"><span class="mono">Brand name</span><input type="text" name="name" maxlength="22" value="Kiln &amp; Co." autocomplete="organization" /></label>
+              <label class="field"><span class="mono">Headline</span><input type="text" name="headline" maxlength="42" value="" placeholder="Auto-written for you" /></label>
+            </div>
+
+            <fieldset class="cfg__group">
+              <legend class="mono">Palette</legend>
+              <div class="swatches" role="radiogroup" data-key="palette"></div>
+            </fieldset>
+
+            <div class="cfg__row">
+              <fieldset class="cfg__group">
+                <legend class="mono">Type</legend>
+                <div class="seg seg--sm" role="radiogroup" data-key="font">
+                  <label><input type="radio" name="font" value="grotesk" checked /><span class="f-grotesk">Grotesk</span></label>
+                  <label><input type="radio" name="font" value="serif" /><span class="f-serif">Serif</span></label>
+                  <label><input type="radio" name="font" value="mono" /><span class="f-mono">Mono</span></label>
+                </div>
+              </fieldset>
+              <fieldset class="cfg__group">
+                <legend class="mono">Layout</legend>
+                <div class="seg seg--sm" role="radiogroup" data-key="layout">
+                  <label><input type="radio" name="layout" value="split" checked /><span>Split</span></label>
+                  <label><input type="radio" name="layout" value="centered" /><span>Centered</span></label>
+                  <label><input type="radio" name="layout" value="editorial" /><span>Editorial</span></label>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="cfg__row">
+              <label class="field field--range"><span class="mono">Corners <output name="radiusOut">14px</output></span><input type="range" name="radius" min="0" max="32" value="14" /></label>
+              <fieldset class="cfg__group">
+                <legend class="mono">Motion</legend>
+                <div class="seg seg--sm" role="radiogroup" data-key="motion">
+                  <label><input type="radio" name="motion" value="calm" /><span>Calm</span></label>
+                  <label><input type="radio" name="motion" value="lively" checked /><span>Lively</span></label>
+                  <label><input type="radio" name="motion" value="max" /><span>Max</span></label>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="cfg__actions">
+              <button type="button" class="btn btn--ghost magnetic" data-action="random"><iconify-icon icon="solar:shuffle-linear" aria-hidden="true"></iconify-icon><span>Surprise me</span></button>
+              <button type="button" class="btn btn--ghost magnetic" data-action="share"><iconify-icon icon="solar:link-round-linear" aria-hidden="true"></iconify-icon><span>Copy link</span></button>
+              <a class="btn btn--accent magnetic" data-action="send" href="#launch"><span>Send this brief</span><iconify-icon icon="solar:arrow-right-up-linear" aria-hidden="true"></iconify-icon></a>
+            </div>
+            <p class="cfg__status mono" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <!-- Same preview canvas the 3D monitor shows. Visible on small screens / without WebGL. -->
+        <figure class="build__preview">
+          <div class="build__preview-frame"><canvas id="preview-canvas" width="1600" height="1000" role="img" aria-label="Live preview of your configured website"></canvas></div>
+          <figcaption class="mono">Live preview — <span class="build__summary">Store · Ember · Grotesk</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 09 — LAUNCH -->
+    <section class="launch" id="launch" data-chapter="Launch" aria-labelledby="launch-title">
+      <p class="eyebrow mono">09 — Launch</p>
+      <h2 class="launch__title split" id="launch-title">Let&rsquo;s build <em>your</em> world.</h2>
+      <p class="launch__lede">Tell me what you&rsquo;re making. I reply within two working days with honest next steps, a timeline and a price range.</p>
+      <div class="launch__ctas">
+        <a class="btn btn--accent btn--big magnetic" id="mail-cta" href="#" data-cursor="Say hi"><span>Start a project</span><iconify-icon icon="solar:letter-linear" aria-hidden="true"></iconify-icon></a>
+        <a class="btn btn--ghost btn--big magnetic" href="#build" data-scroll><span>Configure first</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__big" aria-hidden="true">Jeremy</div>
+    <div class="footer__row mono">
+      <span>&copy; <span class="year"></span> Jeremy — Websites, stores, portfolios &amp; apps</span>
+      <span class="footer__time">Local time <b class="clock">--:--</b></span>
+      <span>Island modeled in Blender · Rendered with Three.js · Moved by GSAP</span>
+      <a href="../" class="footer__top">← Latest version: Track Day</a>
+      <a href="#hero" data-scroll class="footer__top">Back to the sky ↑</a>
+    </div>
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
