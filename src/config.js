@@ -4,8 +4,8 @@
 
 export const SITE = {
   name: 'Jeremy',
-  // TODO(owner): set your real inbox — used by "Start a project" and "Send this brief".
-  email: 'hello@example.com',
+  // Inbox for "Start a project", "Send this brief" and "Copy the address".
+  email: 'cloudlyconfusing@gmail.com',
   // TODO(owner): paste a form endpoint (e.g. https://formspree.io/f/xxxxxx) to receive entries
   // without the visitor's email app. Leave empty to fall back to a pre-filled email.
   formEndpoint: '',

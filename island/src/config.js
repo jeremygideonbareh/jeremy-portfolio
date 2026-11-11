@@ -4,8 +4,8 @@
 
 export const SITE = {
   name: 'Jeremy',
-  // TODO(owner): set your real inbox — used by "Start a project" and "Send this brief".
-  email: 'hello@example.com',
+  // Inbox for "Start a project", "Send this brief" and "Copy the address".
+  email: 'cloudlyconfusing@gmail.com',
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 };
 
