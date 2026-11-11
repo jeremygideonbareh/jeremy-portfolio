@@ -14,7 +14,7 @@ export const SITE = {
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 };
 
-// Palettes for the configurator (and the concept builds in the reel).
+// Palettes for the configurator.
 export const PALETTES = {
   stone:   { label: 'Stone',   bg: '#ebe7e0', surface: '#dcd6cc', ink: '#16171a', muted: '#6f6a62', accent: '#2f3b4a', accent2: '#9fb0c2' },
   glacier: { label: 'Glacier', bg: '#eef3f6', surface: '#d9e3ea', ink: '#0d1620', muted: '#5b6b78', accent: '#3b5a78', accent2: '#a9c1d6' },
@@ -49,20 +49,51 @@ export const DEFAULT_CONFIG = {
   photos: ['/images/kiln-1.webp', '/images/kiln-2.webp', '/images/kiln-3.webp', '/images/kiln-4.webp'],
 };
 
-// Concept builds for the reel. Replace with real client launches as they ship:
-// keep `concept: true` only for self-initiated work.
-// Each concept has its own copy, products and personality so no two read alike.
-export const PROJECTS = [
-  { title: 'Kiln & Co.', kind: 'Online store', year: '2026', concept: true, summary: 'Ceramics shop with drop-day countdowns and a one-page checkout.',
-    cfg: { type: 'store', name: 'Kiln & Co.', palette: 'stone', font: 'serif', layout: 'split', radius: 18, motion: 'lively', headline: 'Made slowly. Shipped fast.', photos: ['/images/kiln-1.webp', '/images/kiln-2.webp', '/images/kiln-3.webp', '/images/kiln-4.webp'] } },
-  { title: 'Ines Duarte', kind: 'Portfolio', year: '2026', concept: true, summary: 'Photographer portfolio where every series opens like a book.',
-    cfg: { type: 'portfolio', name: 'Ines Duarte', palette: 'noir', font: 'serif', layout: 'editorial', radius: 4, motion: 'calm', headline: 'Light, kept.', sub: 'Photographs from the Atlantic coast, 2019 — now.', tiles: ['Low Tide', 'The Pier', 'Coast Road', 'Under the Bridge'], btns: ['View series', 'Book a shoot'], photos: ['/images/ines-1.webp', '/images/ines-2.webp', '/images/ines-3.webp', '/images/ines-4.webp'] } },
-  { title: 'Tidepool', kind: 'Mobile app', year: '2026', concept: true, summary: 'Habit app with streaks that grow a tiny reef as you go.',
-    cfg: { type: 'app', name: 'Tidepool', palette: 'glacier', font: 'grotesk', layout: 'split', radius: 26, motion: 'max', headline: 'Grow a reef, one habit at a time.', cards: ['Reef level 4', '+12 min focus'] } },
-  { title: 'Northline Coffee', kind: 'Website', year: '2026', concept: true, summary: 'Neighbourhood roaster site with live menu and map.',
-    cfg: { type: 'website', name: 'Northline', palette: 'moss', font: 'grotesk', layout: 'centered', radius: 12, motion: 'lively', headline: 'The coffee your street deserves.', photos: ['/images/northline-1.webp'] } },
-  { title: 'Studio Rhea', kind: 'Portfolio', year: '2026', concept: true, summary: 'Architecture studio site with plan-to-photo case studies.',
-    cfg: { type: 'portfolio', name: 'Studio Rhea', palette: 'glacier', font: 'mono', layout: 'split', radius: 0, motion: 'calm', headline: 'Plans that become places.', sub: 'Architecture & interiors. Lisbon / Porto.', tiles: ['Concrete Passage', 'Hangar 7', 'The Brick Hall', 'Chapel Retrofit'], btns: ['Projects', 'Studio'], links: ['Projects', 'Studio', 'Contact'], photos: ['/images/rhea-1.webp', '/images/rhea-2.webp', '/images/rhea-3.webp', '/images/rhea-4.webp'] } },
-  { title: 'Bloom Supply', kind: 'Online store', year: '2026', concept: true, summary: 'Plant shop with a care-guide quiz that builds your cart.',
-    cfg: { type: 'store', name: 'Bloom Supply', palette: 'rose', font: 'grotesk', layout: 'centered', radius: 28, motion: 'max', headline: 'Plants that suit your light.', sub: 'Take the 30-second quiz. We’ll fill your cart.', items: [['Glasshouse kit', '$38'], ['Pilea', '$22'], ['Willow cuttings', '$45'], ['Olive tree', '$64']], btns: ['Take the quiz', 'Shop all'], photos: ['/images/bloom-1.webp', '/images/bloom-2.webp', '/images/bloom-3.webp', '/images/bloom-4.webp'] } },
-];
+// Real launches, all live on GitHub Pages. `repo` is the Pages path under PAGES_HOST;
+// `shot` lives in public/images/work/<shot>.webp (and <shot>-m.webp for the featured phone shots).
+// `featured` builds run in the speed run and on the podium; their `cfg` is the closest pit-stop
+// setup, so visitors can start their own build from that style.
+// `concept: true` marks self-initiated demos (per the repo description).
+export const PAGES_HOST = 'https://jeremygideonbareh.github.io';
+
+export const WORK = [
+  { repo: 'the-ark-music-shillong', line: 'Music classes, Shillong', shot: 'the-ark-music-shillong', title: 'The ARK Music', kind: 'Music school', year: '2026', featured: true,
+    summary: 'Motion-led site for a Shillong music school — singing, piano, guitar and violin, with admissions up front.',
+    cfg: { type: 'website', name: 'The ARK', palette: 'stone', font: 'grotesk', layout: 'split', radius: 18, motion: 'max', headline: 'Inspiring musicians, one note at a time.' } },
+  { repo: 'meghalaya-mun', line: 'Model UN conference', shot: 'meghalaya-mun', title: 'Meghalaya MUN', kind: 'Event site', year: '2026', featured: true,
+    summary: 'Cinematic site for the 7th international Shillong edition of Meghalaya Model United Nations.',
+    cfg: { type: 'website', name: 'MMUN', palette: 'night', font: 'grotesk', layout: 'split', radius: 14, motion: 'max', headline: 'Meghalaya Model United Nations.' } },
+  { repo: 'robert-junior-patisserie', line: 'Pastries via WhatsApp', shot: 'robert-junior-patisserie', title: 'Robert Junior', kind: 'Pâtisserie', year: '2026', featured: true, concept: true,
+    summary: 'Illustrated pâtisserie site with Three.js and Blender touches, and orders straight to WhatsApp.',
+    cfg: { type: 'store', name: 'Robert Junior', palette: 'rose', font: 'serif', layout: 'split', radius: 6, motion: 'lively', headline: 'Good day? Pastries.' } },
+  { repo: 'ri-and-last', line: 'Handwoven Eri silk', shot: 'ri-and-last', title: 'Ri & Last', kind: 'Online store', year: '2026', featured: true,
+    summary: 'Handwoven Eri silk from Khweng, Meghalaya — slow, textile-first storytelling and a collection to shop.',
+    cfg: { type: 'store', name: 'Ri & Last', palette: 'noir', font: 'serif', layout: 'editorial', radius: 22, motion: 'calm', headline: 'Woven slowly, in the hills of Khweng.' } },
+  { repo: 'artha-equities', line: 'Portfolio diagnostics', shot: 'artha-equities', title: 'Artha Equities', kind: 'Fintech site', year: '2026', featured: true, concept: true,
+    summary: 'Research-house site that turns a holdings statement into a clear, readable diagnostic.',
+    cfg: { type: 'website', name: 'Artha', palette: 'night', font: 'serif', layout: 'split', radius: 8, motion: 'calm', headline: 'Know what you own.' } },
+  { repo: 'dream_craft', line: 'Handmade invitations', shot: 'dream-craft', title: 'Mynséra', kind: 'Online store', year: '2026', featured: true,
+    summary: 'Handmade invitations, florals and keepsakes from Shillong, with a quote in about two minutes.',
+    cfg: { type: 'store', name: 'Mynséra', palette: 'rose', font: 'serif', layout: 'split', radius: 28, motion: 'lively', headline: 'Invitations, florals & keepsakes made by hand.' } },
+  { repo: 'gb-the-baby-spot', line: 'Kids wear & toys', shot: 'gb-the-baby-spot', title: 'G.B The Baby Spot', kind: 'Online store', year: '2026', featured: true,
+    summary: 'Kids wear, toys and accessories in Shillong, ordered over WhatsApp with home delivery.',
+    cfg: { type: 'store', name: 'G.B The Baby Spot', palette: 'stone', font: 'serif', layout: 'split', radius: 24, motion: 'lively', headline: 'Everything your little one needs.' } },
+  { repo: 'kiki-garod-portfolio', line: 'Filmmaker portfolio', shot: 'kiki-garod-portfolio', title: 'Kiki Garod', kind: 'Portfolio', year: '2026', featured: true,
+    summary: 'Dark, cinematic portfolio for an award-winning filmmaker and storyteller.',
+    cfg: { type: 'portfolio', name: 'Kiki Garod', palette: 'noir', font: 'grotesk', layout: 'editorial', radius: 2, motion: 'calm', headline: 'Filmmaker. Storyteller.' } },
+  { repo: 'paws-for-change-india', shot: 'paws-for-change-india', title: 'Paws for Change', kind: 'NGO site', year: '2026', summary: 'Rescue & adoption NGO' },
+  { repo: 'pet-grooming-website-', shot: 'pet-grooming-website', title: 'A-1 Enterprises', kind: 'Business site', year: '2026', summary: 'Pet care & grooming, Shillong' },
+  { repo: '-gntschoolofphotography', shot: 'gntschoolofphotography', title: 'GNT School of Photography', kind: 'Course site', year: '2026', summary: 'Batches, fees, enrolment' },
+  { repo: 'gntportraits', shot: 'gntportraits', title: 'Glorianatasha', kind: 'Portfolio', year: '2026', summary: 'Portrait photographer' },
+  { repo: 'JMJ-Events-Interiors-', shot: 'jmj-events-interiors', title: 'JMJ Events & Interiors', kind: 'Business site', year: '2026', summary: 'Weddings & interiors, Bangalore' },
+  { repo: 'beenabakehouse', shot: 'beenabakehouse', title: 'Beena’s Bake House', kind: 'Bakery site', year: '2026', summary: 'Homemade cakes since 2000' },
+  { repo: 'irene-bakery', shot: 'irene-bakery', title: 'Irene Bakes', kind: 'Bakery site', year: '2026', summary: 'Cakes & pastries, Shillong' },
+  { repo: 'chelsea-man-spa-mobile', shot: 'chelsea-man-spa-mobile', title: 'Chelsea Man Spa', kind: 'Mobile app', year: '2026', summary: 'Booking app · Google sign-in' },
+  { repo: 'FLY-OUTLANDISH-TUITION-CENTRE-', shot: 'fly-outlandish-tuition-centre', title: 'Fly Outlandish', kind: 'Tuition site', year: '2026', summary: 'Maths & sciences, Tura' },
+  { repo: 'virtual-tapes-acoustics', shot: 'virtual-tapes-acoustics', title: 'Virtual Tapes', kind: 'Business site', year: '2026', summary: 'Architectural acoustics' },
+  { repo: 'aliquot-lab-manager', shot: 'aliquot-lab-manager', title: 'Aliquot', kind: 'Web app', year: '2026', summary: 'Chemistry lab manager' },
+  { repo: 'resume-analyser', shot: 'resume-analyser', title: 'ResumeLab', kind: 'Web app', year: '2026', summary: 'In-browser ATS scoring' },
+  { repo: 'buccaneer-dash', shot: 'buccaneer-dash', title: 'Buccaneer Dash', kind: 'Browser game', year: '2026', summary: 'Three.js pirate racer' },
+  { repo: 'gym_website', shot: 'gym-website', title: 'FitForge Pro', kind: 'Website', year: '2026', summary: 'Fitness coaching' },
+  { repo: 'barber-shop-demo', shot: 'barber-shop-demo', title: 'Orthon Barber House', kind: 'Website', year: '2026', concept: true, summary: 'Barber booking, Athens' },
+].map((w) => ({ ...w, url: `${PAGES_HOST}/${w.repo}/` }));

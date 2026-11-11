@@ -2,7 +2,7 @@
 
 A motion-heavy portfolio for an independent designer & developer, built as a racing lap:
 start-light loader, a racing line that draws down the page, a horizontal speed run through
-concept builds, a laptop that opens on scroll, a pit-stop configurator that renders a visitor's
+real, live launches, a laptop that opens on scroll, a pit-stop configurator that renders a visitor's
 own site live on 3D devices, and a chequered-flag contact form.
 
 **Live:** https://jeremygideonbareh.github.io/jeremy-portfolio/
@@ -19,7 +19,14 @@ npm run build      # production build in dist/
 
 ## Make it yours
 Edit `src/config.js`: `SITE.email`, `SITE.formEndpoint` (e.g. Formspree), `SITE.socials`, and the
-`PROJECTS` list (set `concept: false` for real client work).
+`WORK` list (each entry is a GitHub Pages repo; `featured: true` puts it in the speed run and on the podium).
+
+To refresh screenshots of live sites:
+```bash
+node tools/shoot-sites.mjs shots-sites the-ark-music-shillong meghalaya-mun            # desktop, 1200x750
+MOBILE=1 node tools/shoot-sites.mjs shots-sites the-ark-music-shillong meghalaya-mun   # phone, saved as <name>-m.webp
+```
+Then resize into `public/images/work/` (960x600 desktop; phone shots as-is).
 
 ## 3D assets
 - `blender/build_devices.py`: phone and laptop → `public/models/devices.glb`, compressed with

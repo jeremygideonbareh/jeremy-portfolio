@@ -9,9 +9,9 @@ import './style.css';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { SITE, PROJECTS, PALETTES, FONTS } from './config.js';
+import { SITE, WORK } from './config.js';
 import { Configurator } from './configurator.js';
-import { paintSite, onImagesReady, preloadPhotos } from './sitepainter.js';
+import { paintSite } from './sitepainter.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -99,38 +99,41 @@ function splitWords(el) {
   el.innerHTML = el.innerHTML.split(/(<[^>]+>|\s+)/).filter(Boolean).map((w) => (w.startsWith('<') || /^\s+$/.test(w) ? w : `<span class="fw">${w}</span>`)).join('');
 })();
 
-// ------------------------------------------------------------------ content: speed-run frames, podium, classification
-const setupOf = (cfg) => `${PALETTES[cfg.palette]?.label} · ${FONTS[cfg.font]?.label} · ${cfg.layout}`;
-$('.s2__frames').innerHTML = PROJECTS.map((p, i) => `
+// ------------------------------------------------------------------ content: real launches (speed run, podium, classification)
+const pad2 = (n) => String(n).padStart(2, '0');
+const shotUrl = (w, suffix = '') => `${import.meta.env.BASE_URL}images/work/${w.shot}${suffix}.webp`;
+const FEATURED = WORK.filter((w) => w.featured);
+const statusOf = (w) => (w.concept ? 'Concept' : 'Live');
+const visitLabel = (w) => `Visit ${w.title} — opens the live site in a new tab`;
+$('.s2__frames').innerHTML = FEATURED.map((p, i) => `
   <li class="frame" data-i="${i}">
-    <span class="frame__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
-    <div class="frame__tilt"><div class="frame__media" data-cursor="Remix"><canvas width="960" height="600" aria-hidden="true"></canvas><span class="frame__badge mono">${p.concept ? 'Concept' : 'Client'} · ${p.year}</span></div></div>
+    <span class="frame__num" aria-hidden="true">${pad2(i + 1)}</span>
+    <div class="frame__tilt"><a class="frame__media" href="${p.url}" target="_blank" rel="noopener" data-cursor="Visit" aria-label="${visitLabel(p)}"><img src="${shotUrl(p)}" width="960" height="600" alt="" decoding="async" /><span class="frame__badge mono">${statusOf(p)} · ${p.year}</span></a></div>
     <div class="frame__meta"><h3>${p.title}</h3><span class="mono">${p.kind}</span></div>
     <p class="frame__summary">${p.summary}</p>
-    <button class="frame__remix mono" type="button" data-remix="${i}">Remix in the pit stop →</button>
+    <button class="frame__remix mono" type="button" data-remix="${i}">Start a build in this style →</button>
   </li>`).join('');
-$('.s2__total').textContent = String(PROJECTS.length).padStart(2, '0');
+$('.s2__total').textContent = pad2(FEATURED.length);
 
 const podiumOrder = [1, 0, 2]; // 2nd · 1st · 3rd
 $('.podium__steps').innerHTML = podiumOrder.map((idx) => {
-  const p = PROJECTS[idx];
+  const p = FEATURED[idx];
   return `<div class="step" data-i="${idx}">
-    <div class="step__card" data-cursor="Remix"><canvas width="960" height="600" aria-hidden="true"></canvas></div>
+    <a class="step__card" href="${p.url}" target="_blank" rel="noopener" data-cursor="Visit" aria-label="${visitLabel(p)}"><img src="${shotUrl(p)}" width="960" height="600" alt="" loading="lazy" decoding="async" /></a>
     <div class="step__name"><h3>${p.title}</h3><span class="mono">${p.kind}</span></div>
     <div class="step__block" aria-hidden="true">${idx + 1}</div>
   </div>`;
 }).join('');
-$('.classification__rows').innerHTML = PROJECTS.map((p, i) => `
-  <li class="row" tabindex="0" role="button" data-remix="${i}" data-i="${i}" aria-label="${p.title}, ${p.kind} concept. Open it in the pit stop configurator">
-    <span class="row__pos">#${String(i + 1).padStart(2, '0')}</span><span class="row__name">${p.title}</span><span class="mono">${p.kind}</span><span class="mono">${setupOf(p.cfg)}</span><span class="row__status mono">${p.concept ? 'Concept' : 'Live'}</span>
-  </li>`).join('');
-
-const paintCanvas = (c, cfg, t = 0) => paintSite(c.getContext('2d'), c.width, c.height, cfg, t, 1, { chrome: true });
-const frameCanvases = $$('.frame canvas').map((c, i) => ({ c, cfg: PROJECTS[i].cfg }));
-const stepCanvases = $$('.step canvas').map((c) => ({ c, cfg: PROJECTS[+c.closest('.step').dataset.i].cfg }));
-// real photography for the concepts: repaint the static canvases as each image lands
-preloadPhotos(PROJECTS.flatMap((p) => p.cfg.photos || []));
-onImagesReady(() => { frameCanvases.forEach((k) => paintCanvas(k.c, k.cfg)); stepCanvases.forEach((k) => paintCanvas(k.c, k.cfg)); });
+$('.classification__rows').innerHTML = WORK.map((p, i) => `
+  <li><a class="row" href="${p.url}" target="_blank" rel="noopener" data-i="${i}" aria-label="${p.title}, ${p.kind}. Opens the live site in a new tab">
+    <span class="row__pos">#${pad2(i + 1)}</span><span class="row__name">${p.title}</span><span class="mono">${p.kind}</span><span class="mono">${p.line || p.summary}</span><span class="row__status mono">${statusOf(p)} ↗</span>
+  </a></li>`).join('');
+// warm the classification thumbnails once the line-up is close, so hover previews never flash empty
+new IntersectionObserver((entries, io) => {
+  if (!entries.some((e) => e.isIntersecting)) return;
+  io.disconnect();
+  WORK.forEach((w) => { const im = new Image(); im.src = shotUrl(w); });
+}, { rootMargin: '100% 0px' }).observe($('#podium'));
 
 // ------------------------------------------------------------------ configurator
 let stage = null;
@@ -216,9 +219,9 @@ const scrollToEl = (target) => {
   else el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
 };
 const remix = (i) => {
-  const { type, name, headline, palette, font, layout, radius, motion, photos } = PROJECTS[i].cfg;
-  configurator.load({ type, name, headline, palette, font, layout, radius, motion, photos });
-  configurator.status(`Loaded “${PROJECTS[i].title}” — make it yours.`);
+  const { type, name, headline, palette, font, layout, radius, motion } = FEATURED[i].cfg;
+  configurator.load({ type, name, headline, palette, font, layout, radius, motion });
+  configurator.status(`Loaded the ${FEATURED[i].title} setup — now make it yours.`);
   scrollToEl('#pitstop');
 };
 document.addEventListener('click', (e) => {
@@ -226,8 +229,6 @@ document.addEventListener('click', (e) => {
   if (a) { e.preventDefault(); closeMenu(); scrollToEl(a.getAttribute('href')); return; }
   const r = e.target.closest('[data-remix]');
   if (r) { remix(+r.dataset.remix); return; }
-  const media = e.target.closest('.frame__media, .step__card');
-  if (media) { remix(+(media.closest('[data-i]').dataset.i)); return; }
   const rt = e.target.closest('[data-remix-type]');
   if (rt) {
     configurator.set({ type: rt.dataset.remixType });
@@ -236,7 +237,6 @@ document.addEventListener('click', (e) => {
   }
 });
 document.addEventListener('keydown', (e) => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.row')) { e.preventDefault(); remix(+e.target.dataset.remix); }
   // keep keyboard focus inside the open menu (burger ↔ links)
   if (e.key === 'Tab' && !menu.hidden) {
     const items = [burger, ...$$('a, button', menu)];
@@ -393,22 +393,26 @@ Promise.all([
 ]).then(([s]) => {
   attachStage(s);
   configurator.paint(0);
-  frameCanvases.forEach((k) => paintCanvas(k.c, k.cfg));
-  stepCanvases.forEach((k) => paintCanvas(k.c, k.cfg));
   setLoad(1);
   setupScroll();
   intro();
   if (!s) stagePromise.then((late) => { attachStage(late); if (late) gsap.to(late, { intro: 0, duration: 2, ease: 'expo.out' }); });
 });
 
-// the phone shows the mobile version of whichever build is "live"
+// the phone shows the real mobile build of whichever launch is in focus; in the pit stop, your build
 let phoneProject = 0;
+const phoneShots = FEATURED.map((w) => { const im = new Image(); im.decoding = 'async'; im.src = shotUrl(w, '-m'); return im; });
 function phonePainter(ctx, W, H, t) {
-  const base = themeIdx === 4 ? configurator.state : PROJECTS[phoneProject].cfg;
-  const cfg = { ...base, layout: 'centered' };
-  paintSite(ctx, W, H, cfg, t, 1, { chrome: false });
+  const im = phoneShots[phoneProject];
+  if (themeIdx !== 4 && im.complete && im.naturalWidth) {
+    const k = Math.max(W / im.naturalWidth, H / im.naturalHeight);
+    ctx.drawImage(im, (W - im.naturalWidth * k) / 2, 0, im.naturalWidth * k, im.naturalHeight * k);
+    return;
+  }
+  const base = themeIdx === 4 ? configurator.state : FEATURED[phoneProject].cfg;
+  paintSite(ctx, W, H, { ...base, layout: 'centered' }, t, 1, { chrome: false });
 }
-if (!reduced) setInterval(() => { if (!inSpeedRun) phoneProject = (phoneProject + 1) % PROJECTS.length; }, 3200);
+if (!reduced) setInterval(() => { if (!inSpeedRun) phoneProject = (phoneProject + 1) % FEATURED.length; }, 3200);
 let inSpeedRun = false;
 
 // ------------------------------------------------------------------ intro: lights out
@@ -798,16 +802,14 @@ if (!coarse && !reduced) {
   });
   // classification hover preview follows the cursor
   const hp = $('.hover-preview');
-  const hpc = $('canvas', hp);
+  const hpImg = $('img', hp);
   const hx = gsap.quickTo(hp, 'x', { duration: 0.5, ease: 'power3' });
   const hy = gsap.quickTo(hp, 'y', { duration: 0.5, ease: 'power3' });
-  let hpCfg = null;
   $$('.row').forEach((row) => {
-    row.addEventListener('pointerenter', () => { hpCfg = PROJECTS[+row.dataset.i].cfg; paintCanvas(hpc, hpCfg); gsap.to(hp, { opacity: 1, scale: 1, rotate: -4, duration: 0.5, ease: 'expo.out' }); });
-    row.addEventListener('pointerleave', () => { hpCfg = null; gsap.to(hp, { opacity: 0, scale: 0.6, rotate: 0, duration: 0.4, ease: 'power3.in' }); });
+    row.addEventListener('pointerenter', () => { hpImg.src = shotUrl(WORK[+row.dataset.i]); gsap.to(hp, { opacity: 1, scale: 1, rotate: -4, duration: 0.5, ease: 'expo.out' }); });
+    row.addEventListener('pointerleave', () => { gsap.to(hp, { opacity: 0, scale: 0.6, rotate: 0, duration: 0.4, ease: 'power3.in' }); });
   });
   addEventListener('pointermove', (e) => { hx(e.clientX + 48); hy(e.clientY - 200); });
-  gsap.ticker.add((t) => { if (hpCfg) paintCanvas(hpc, hpCfg, t); });
 } else {
   cursor.remove();
 }
