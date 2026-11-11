@@ -360,7 +360,7 @@ async function initStage() {
     const { Stage } = await import('./stage.js');
     setLoad(0.2);
     const s = new Stage($('#stage'), { previewCanvas: $('#preview-canvas'), mobile: isMobile(), onProgress: (p) => setLoad(0.2 + p * 0.7) });
-    await s.load('/models/devices.glb');
+    await s.load(`${import.meta.env.BASE_URL}models/devices.glb`);
     $('#stage').addEventListener('webglcontextlost', (e) => { e.preventDefault(); html.classList.add('no-stage'); html.classList.remove('has-stage'); });
     html.classList.add('has-stage');
     return s;

@@ -10,8 +10,11 @@ const MOTION_AMP = { calm: 0.35, lively: 1, max: 2.2 };
 const IMG = new Map();
 const imgListeners = new Set();
 export function onImagesReady(fn) { imgListeners.add(fn); return () => imgListeners.delete(fn); }
+// '/images/x.webp' → resolved against the deploy base (works under a GitHub Pages subpath)
+const asset = (url) => (url.startsWith('/') ? import.meta.env.BASE_URL + url.slice(1) : url);
 function photo(url) {
   if (!url) return null;
+  url = asset(url);
   let rec = IMG.get(url);
   if (!rec) {
     const im = new Image();
