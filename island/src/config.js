@@ -9,7 +9,7 @@ export const SITE = {
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 };
 
-// Palettes for the configurator (and the concept builds in the reel).
+// Palettes for the configurator.
 export const PALETTES = {
   ember:   { label: 'Ember',   bg: '#fff4ec', surface: '#ffe3d1', ink: '#1d130e', muted: '#8a6a5a', accent: '#ff5a1f', accent2: '#ffb38a' },
   glacier: { label: 'Glacier', bg: '#eef6fb', surface: '#d6e9f5', ink: '#0d1b2a', muted: '#5b7387', accent: '#2f7cf6', accent2: '#9fd8ff' },
@@ -43,13 +43,4 @@ export const DEFAULT_CONFIG = {
   motion: 'lively',
 };
 
-// Concept builds for the reel. Replace with real client launches as they ship:
-// keep `concept: true` only for self-initiated work.
-export const PROJECTS = [
-  { title: 'Kiln & Co.', kind: 'Online store', year: '2026', concept: true, summary: 'Ceramics shop with drop-day countdowns and a one-page checkout.', cfg: { type: 'store', name: 'Kiln & Co.', palette: 'ember', font: 'serif', layout: 'split', radius: 18, motion: 'lively' } },
-  { title: 'Ines Duarte', kind: 'Portfolio', year: '2026', concept: true, summary: 'Photographer portfolio where every series opens like a book.', cfg: { type: 'portfolio', name: 'Ines Duarte', palette: 'noir', font: 'serif', layout: 'editorial', radius: 4, motion: 'calm' } },
-  { title: 'Tidepool', kind: 'Mobile app', year: '2026', concept: true, summary: 'Habit app with streaks that grow a tiny reef as you go.', cfg: { type: 'app', name: 'Tidepool', palette: 'glacier', font: 'grotesk', layout: 'split', radius: 26, motion: 'max' } },
-  { title: 'Northline Coffee', kind: 'Website', year: '2026', concept: true, summary: 'Neighbourhood roaster site with live menu and map.', cfg: { type: 'website', name: 'Northline', palette: 'moss', font: 'grotesk', layout: 'centered', radius: 12, motion: 'lively' } },
-  { title: 'Studio Rhea', kind: 'Portfolio', year: '2026', concept: true, summary: 'Architecture studio site with plan-to-photo case studies.', cfg: { type: 'portfolio', name: 'Studio Rhea', palette: 'glacier', font: 'mono', layout: 'split', radius: 0, motion: 'calm' } },
-  { title: 'Bloom Supply', kind: 'Online store', year: '2026', concept: true, summary: 'Plant shop with a care-guide quiz that builds your cart.', cfg: { type: 'store', name: 'Bloom Supply', palette: 'candy', font: 'grotesk', layout: 'centered', radius: 28, motion: 'max' } },
-];
+// The reel lists real launches from WORK in ../../src/config.js (shared with Track Day).

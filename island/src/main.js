@@ -8,9 +8,9 @@ import './style.css';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { SITE, PROJECTS } from './config.js';
+import { SITE } from './config.js';
+import { WORK } from '../../src/config.js'; // one list of real launches for both designs
 import { Configurator } from './configurator.js';
-import { paintSite } from './sitepainter.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -116,21 +116,27 @@ $$('.fill-text').forEach(fillWords);
 
 // ------------------------------------------------------------------ project reel
 const reel = $('.work__reel');
-reel.innerHTML = PROJECTS.map((p, i) => `
-  <li class="card" data-cursor="Remix">
-    <div class="card__media"><canvas width="960" height="600" aria-hidden="true"></canvas><span class="card__badge mono">${p.concept ? 'Concept' : 'Client'} · ${p.year}</span></div>
+// screenshots live in the site-root public/ folder: '/' on the dev server, '../' from the built /island/ page
+const shotUrl = (w) => `${import.meta.env.DEV ? '/' : '../'}images/work/${w.shot}.webp`;
+// Track Day palettes → the island's own palettes, so "start from this style" lands on a real option
+const PALETTE_MAP = { stone: 'glacier', night: 'dusk', rose: 'candy', noir: 'noir', glacier: 'glacier', moss: 'moss' };
+const FEATURED = WORK.filter((w) => w.featured);
+const MORE = WORK.filter((w) => !w.featured);
+reel.innerHTML = FEATURED.map((p, i) => `
+  <li class="card">
+    <a class="card__media" href="${p.url}" target="_blank" rel="noopener" data-cursor="Visit" aria-label="Visit ${p.title} — opens the live site in a new tab"><img src="${shotUrl(p)}" width="960" height="600" alt="" loading="lazy" decoding="async" /><span class="card__badge mono">${p.concept ? 'Concept' : 'Live'} · ${p.year}</span></a>
     <div class="card__meta">
       <span class="card__num mono">${String(i + 1).padStart(2, '0')}</span>
       <div><h3>${p.title}</h3><p>${p.summary}</p></div>
     </div>
-    <div class="card__foot"><span class="mono">${p.kind}</span><button class="card__remix mono" data-remix="${i}" type="button">Remix this in the configurator <span aria-hidden="true">→</span></button></div>
-  </li>`).join('');
-const cardCanvases = $$('.card canvas', reel).map((c, i) => ({ c, ctx: c.getContext('2d'), cfg: PROJECTS[i].cfg, hover: false }));
-const paintCards = (t = 0) => cardCanvases.forEach((k) => paintSite(k.ctx, 960, 600, k.cfg, k.hover ? t : 0, 1, { chrome: true }));
-$$('.card', reel).forEach((card, i) => {
-  card.addEventListener('pointerenter', () => (cardCanvases[i].hover = true));
-  card.addEventListener('pointerleave', () => (cardCanvases[i].hover = false));
-});
+    <div class="card__foot"><span class="mono">${p.kind}</span><button class="card__remix mono" data-remix="${i}" type="button">Start from this style <span aria-hidden="true">→</span></button></div>
+  </li>`).join('') + `
+  <li class="card card--more">
+    <div class="card__more">
+      <p class="mono card__more-eyebrow">+${MORE.length} more launches, all live</p>
+      <ul>${MORE.map((p) => `<li><a href="${p.url}" target="_blank" rel="noopener"><span>${p.title}</span><span class="mono">${p.kind}</span></a></li>`).join('')}</ul>
+    </div>
+  </li>`;
 
 // zone cards get a "configure one" shortcut
 $$('.zone').forEach((z) => {
@@ -180,8 +186,9 @@ document.addEventListener('click', (e) => {
   }
   const remix = e.target.closest('[data-remix]');
   if (remix) {
-    configurator.load({ ...PROJECTS[+remix.dataset.remix].cfg, name: PROJECTS[+remix.dataset.remix].cfg.name });
-    configurator.status(`Loaded “${PROJECTS[+remix.dataset.remix].title}” — make it yours.`);
+    const p = FEATURED[+remix.dataset.remix];
+    configurator.load({ ...p.cfg, palette: PALETTE_MAP[p.cfg.palette] || 'glacier' });
+    configurator.status(`Loaded the ${p.title} setup — now make it yours.`);
     scrollToEl('#build');
     return;
   }
@@ -279,7 +286,6 @@ Promise.all([initWorld(), fontsReady.then(() => Promise.all(['700 20px "Bricolag
   if (import.meta.env.DEV) window.__world = w;
   configurator.paint(0);
   world?.paintGallery();
-  paintCards();
   setLoad(1);
   setupScroll();
   intro();
@@ -597,9 +603,6 @@ gsap.ticker.add((time, deltaMs) => {
     if (configurator.tick(time, dt)) {/* preview only */}
   }
   if (coordEl?.isConnected) coordEl.textContent = `N ${(45 + Math.sin(time) * 0.5).toFixed(3)}° · E ${(12 + time * 0.37).toFixed(3)}°`;
-  if (cardCanvases.some((k) => k.hover)) {
-    cardCanvases.forEach((k) => k.hover && paintSite(k.ctx, 960, 600, k.cfg, time, 1, { chrome: true }));
-  }
 });
 
 let resizeT;
