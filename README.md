@@ -28,6 +28,12 @@ MOBILE=1 node tools/shoot-sites.mjs shots-sites the-ark-music-shillong meghalaya
 ```
 Then resize into `public/images/work/` (960x600 desktop; phone shots as-is).
 
+Scrolling filmstrips (used by the telemetry sheet, onboard phones, 3D screens and speed-run hovers):
+```bash
+node tools/shoot-strips.mjs                 # every project in WORK
+node tools/shoot-strips.mjs the-ark-music-shillong   # just one (by `shot`)
+```
+
 ## 3D assets
 - `blender/build_devices.py`: phone and laptop → `public/models/devices.glb`, compressed with
   `gltf-transform` (meshopt)

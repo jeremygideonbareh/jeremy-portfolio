@@ -192,15 +192,25 @@ export class Configurator {
   }
 }
 
+// short, readable share links: #cfg=store.noir.serif.split.14.max~Brand%20Name~Headline
 function encodeHash(s) {
-  return btoa(unescape(encodeURIComponent(JSON.stringify(s)))).replace(/=+$/, '');
+  return `${s.type}.${s.palette}.${s.font}.${s.layout}.${s.radius}.${s.motion}~${encodeURIComponent(s.name || '')}~${encodeURIComponent(s.headline || '')}`;
+}
+
+function parseHash(v) {
+  const compact = v.match(/^(\w+)\.(\w+)\.(\w+)\.(\w+)\.(\d+)\.(\w+)~([^~]*)~?(.*)$/);
+  if (compact) {
+    const [, type, palette, font, layout, radius, motion, name, headline] = compact;
+    return { type, palette, font, layout, radius: +radius, motion, name: decodeURIComponent(name), headline: decodeURIComponent(headline) };
+  }
+  return JSON.parse(decodeURIComponent(escape(atob(v)))); // older base64 links keep working
 }
 
 function readHash() {
   const m = location.hash.match(/cfg=([^&]+)/);
   if (!m) return {};
   try {
-    const obj = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+    const obj = parseHash(m[1]);
     const clean = {};
     if (['store', 'portfolio', 'app', 'website'].includes(obj.type)) clean.type = obj.type;
     if (PALETTES[obj.palette]) clean.palette = obj.palette;

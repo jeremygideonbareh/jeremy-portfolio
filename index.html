@@ -36,14 +36,15 @@
       <svg class="nav__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 22 L15 10 L17 10 L13 18 L23 18 L22 22 Z" /></svg>
       <span>JEREMY</span>
     </a>
-    <div class="timing mono" aria-hidden="true">
-      <span class="timing__lap">LAP <b>01</b></span>
-      <ol class="timing__sectors"><li data-s="1"><i></i>S1</li><li data-s="2"><i></i>S2</li><li data-s="3"><i></i>S3</li></ol>
-      <span class="timing__clock">0:00.000</span>
+    <div class="timing mono">
+      <span class="timing__lap" aria-hidden="true">LAP <b>01</b></span>
+      <ol class="timing__sectors" aria-label="Sectors"><li data-s="1"><button type="button" data-jump="#sector1" aria-label="Jump to sector 1, discovery"><i></i>S1</button></li><li data-s="2"><button type="button" data-jump="#sector2" aria-label="Jump to sector 2, the work"><i></i>S2</button></li><li data-s="3"><button type="button" data-jump="#sector3" aria-label="Jump to sector 3, build"><i></i>S3</button></li></ol>
+      <span class="timing__clock" aria-hidden="true">0:00.000</span>
     </div>
     <nav class="nav__links" aria-label="Primary">
       <button class="nav__motion mono" type="button" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Motion <b class="nav__motion-state">On</b></button>
       <a href="#sector2" data-scroll>Work</a>
+      <a href="#onboard" data-scroll>Onboard</a>
       <a href="#pitstop" data-scroll>Build yours</a>
       <a class="btn btn--blue btn--sm magnetic" href="#finish" data-scroll><span>Start a project</span></a>
     </nav>
@@ -54,6 +55,7 @@
     <a href="#sector1" data-scroll><span class="mono">S1</span>Discovery</a>
     <a href="#sector2" data-scroll><span class="mono">S2</span>Design</a>
     <a href="#sector3" data-scroll><span class="mono">S3</span>Build</a>
+    <a href="#onboard" data-scroll><span class="mono">ONB</span>Onboard</a>
     <a href="#pitstop" data-scroll><span class="mono">PIT</span>Build yours</a>
     <a href="#podium" data-scroll><span class="mono">P1</span>Line-up</a>
     <a href="#finish" data-scroll><span class="mono">FIN</span>Start a project</a>
@@ -113,7 +115,7 @@
           <div class="s2__intro">
             <p class="sector-tag mono"><b>S2</b> Design <span class="sector-time">+0.000</span></p>
             <h2 id="s2-title"><span class="g">FULL</span> <em>speed</em><br /><span class="g">DESIGN.</span></h2>
-            <p>Real launches across stores, portfolios, apps and sites &mdash; all live right now. Click any build to open it, or start your own from its setup.</p>
+            <p>Launches across stores, portfolios, apps and sites &mdash; client work and a few concepts, all online right now. Click any build to open it, or start your own from its setup.</p>
           </div>
           <ol class="s2__frames"></ol>
         </div>
@@ -129,6 +131,7 @@
           <h2 id="s3-title"><span class="g">ENGINEERED</span><br /><em>for</em> <span class="g">SPEED.</span></h2>
           <p>Hand-built front ends, Shopify and headless stores, CMS you can actually use, and 3D or motion where it earns its place. Every build is tested on real phones and tuned before it leaves the garage.</p>
           <pre class="code mono" aria-label="Example code"><code></code></pre>
+          <p class="bench mono"><span class="bench__dot" aria-hidden="true"></span><span>On the bench</span><button class="bench__name" type="button" data-sheet="0">The ARK Music</button><span class="bench__count" aria-hidden="true">01 / 08</span></p>
         </div>
         <div class="s3__device" aria-hidden="true"></div>
       </div>
@@ -151,6 +154,19 @@
           <article class="car-card" data-type="app"><span class="mono">#04</span><h3>Apps</h3><p>Web and mobile apps from first wireframe to app-store listing.</p><ul class="mono"><li>iOS · Android · Web</li><li>Onboarding</li><li>Dashboards</li></ul><button class="car-card__cta mono" data-remix-type="app" type="button">Tune one in the pit stop →</button></article>
         </div>
       </div>
+    </section>
+
+    <!-- ONBOARD: every launch on a phone, drag + scroll drift -->
+    <section class="onboard theme-dark" id="onboard" data-sector="7" aria-labelledby="onboard-title">
+      <div class="onboard__head">
+        <p class="sector-tag mono"><b>ONB</b> Onboard cams</p>
+        <h2 id="onboard-title"><span class="g">ONBOARD</span> <em>every</em><br /><span class="g">LAUNCH.</span></h2>
+        <p class="onboard__lede">Every site as its customers meet it &mdash; on a phone, scrolling live. Drag the pit lane, then tap any screen for the full telemetry.</p>
+      </div>
+      <div class="onboard__lane" role="region" aria-label="All launches on phone screens">
+        <div class="onboard__drift"><ol class="onboard__phones"></ol></div>
+      </div>
+      <div class="onboard__foot mono" aria-hidden="true"><span>&larr; Drag</span><i><b></b></i><span class="onboard__count">23 launches</span></div>
     </section>
 
     <!-- PIT STOP: configurator -->
@@ -223,9 +239,14 @@
     <section class="podium theme-light" id="podium" data-sector="5" aria-labelledby="podium-title">
       <p class="sector-tag mono"><b>P1</b> Line-up</p>
       <h2 id="podium-title"><span class="g">THE</span> <em>line-up</em></h2>
-      <p class="podium__note">The podium, then the full classification &mdash; every site below is live. Hover for a preview, click to visit.</p>
+      <p class="podium__note">The podium, then the full classification &mdash; every site below is online, client launches and a few labelled concepts. Filter by class, hover for a preview, click for the full telemetry sheet.</p>
       <div class="podium__steps"></div>
       <div class="classification">
+        <div class="filters" role="toolbar" aria-label="Filter the classification">
+          <div class="filters__chips"></div>
+          <button class="chip chip--random" type="button" data-random><iconify-icon icon="solar:shuffle-linear" aria-hidden="true"></iconify-icon>Random pick</button>
+        </div>
+        <p class="filters__status mono" role="status" aria-live="polite"></p>
         <div class="classification__head mono"><span>No.</span><span>Build</span><span>Class</span><span>Brief</span><span>Status</span></div>
         <ol class="classification__rows"></ol>
       </div>
@@ -291,6 +312,48 @@
       <a href="#grid" data-scroll>Back to the grid ↑</a>
     </div>
   </footer>
+
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+    <div class="sheet__backdrop" data-sheet-close></div>
+    <div class="sheet__panel">
+      <div class="sheet__info">
+        <p class="sheet__eyebrow mono"><span class="sheet__pos">#01</span><span class="sheet__kind"></span><span class="sheet__status"></span></p>
+        <h2 class="sheet__title" id="sheet-title"></h2>
+        <p class="sheet__summary"></p>
+        <dl class="sheet__specs mono">
+          <div><dt>Class</dt><dd class="sheet__cat"></dd></div>
+          <div><dt>Year</dt><dd class="sheet__year"></dd></div>
+          <div><dt>Address</dt><dd class="sheet__url"></dd></div>
+        </dl>
+        <div class="sheet__actions">
+          <a class="btn btn--blue btn--sm sheet__visit magnetic" target="_blank" rel="noopener"><span>Visit the live site</span><iconify-icon icon="solar:arrow-right-up-linear" aria-hidden="true"></iconify-icon></a>
+          <button class="btn btn--ghost btn--sm sheet__remix magnetic" type="button"><span>Start from this style</span></button>
+        </div>
+        <p class="sheet__hint mono">Scroll or drag inside a screen to explore it</p>
+        <div class="sheet__controls">
+          <div class="sheet__view seg seg--sm" role="radiogroup" aria-label="Preview device">
+            <label><input type="radio" name="sheet-view" value="desktop" checked /><span>Desktop</span></label>
+            <label><input type="radio" name="sheet-view" value="phone" /><span>Phone</span></label>
+          </div>
+          <div class="sheet__nav">
+            <button class="sheet__step" type="button" data-sheet-step="-1" aria-label="Previous launch"><iconify-icon icon="solar:arrow-left-linear" aria-hidden="true"></iconify-icon></button>
+            <span class="sheet__count mono">01 / 23</span>
+            <button class="sheet__step" type="button" data-sheet-step="1" aria-label="Next launch"><iconify-icon icon="solar:arrow-right-linear" aria-hidden="true"></iconify-icon></button>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__stage" data-view="desktop">
+        <figure class="sheet__browser">
+          <div class="sheet__bar" aria-hidden="true"><i></i><i></i><i></i><span class="sheet__addr mono"></span></div>
+          <div class="sheet__screen" tabindex="0" aria-label="Desktop preview, scroll to explore"><img class="sheet__strip" alt="" /></div>
+        </figure>
+        <figure class="sheet__phone">
+          <div class="sheet__screen sheet__screen--phone" tabindex="0" aria-label="Phone preview, scroll to explore"><img class="sheet__strip" alt="" /></div>
+        </figure>
+      </div>
+      <button class="sheet__close" type="button" data-sheet-close aria-label="Close the telemetry sheet"><i></i><i></i></button>
+    </div>
+  </div>
 
   <a class="btn btn--blue mobile-cta" href="#finish" data-scroll><span>Start a project</span></a>
 

@@ -106,6 +106,10 @@ export class Stage {
     this.previewTex.flipY = false;
     this.previewTex.anisotropy = 8;
     ls.material = new THREE.MeshBasicMaterial({ map: this.previewTex, toneMapped: false });
+    this.laptopMat = ls.material;
+    // second laptop screen: real launches play here in the Build sector (laptopMode = 'show')
+    this.showScreen = mk(1280, 800);
+    this.laptopMode = 'preview';
     return this;
   }
 
@@ -168,7 +172,17 @@ export class Stage {
       this.phonePainter(this.phoneScreen.ctx, this.phoneScreen.cv.width, this.phoneScreen.cv.height, t);
       this.phoneScreen.tex.needsUpdate = true;
     }
-    if (this.previewDirty && this.laptop.visible) {
+    const showing = this.laptopMode === 'show' && this.laptopPainter;
+    const want = showing ? this.showScreen.tex : this.previewTex;
+    if (this.laptopMat.map !== want) { this.laptopMat.map = want; if (!showing) this.previewDirty = true; }
+    if (showing && this.laptop.visible) {
+      this.showAcc = (this.showAcc || 0) + dt;
+      if (this.showAcc > 1 / 30) {
+        this.showAcc = 0;
+        this.laptopPainter(this.showScreen.ctx, this.showScreen.cv.width, this.showScreen.cv.height, t);
+        this.showScreen.tex.needsUpdate = true;
+      }
+    } else if (this.previewDirty && this.laptop.visible) {
       this.previewTex.needsUpdate = true;
       this.previewDirty = false;
     }

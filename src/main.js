@@ -12,6 +12,7 @@ import Lenis from 'lenis';
 import { SITE, WORK } from './config.js';
 import { Configurator } from './configurator.js';
 import { paintSite } from './sitepainter.js';
+import { FEATURED, shotUrl, statusOf, loadStrip, createSheet, createOnboard, createFilters, frameFilmstrips } from './work.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -92,7 +93,7 @@ function splitWords(el) {
   });
 }
 // headings: split whole h1/h2 so every word can race in
-['#hero-title', '#s2-title', '#s3-title', '#pit-title', '#podium-title', '#finish-title'].forEach((s) => splitWords($(s)));
+['#hero-title', '#s2-title', '#s3-title', '#pit-title', '#podium-title', '#finish-title', '#onboard-title'].forEach((s) => splitWords($(s)));
 // statement: words light up as you read
 (() => {
   const el = $('.statement');
@@ -101,14 +102,11 @@ function splitWords(el) {
 
 // ------------------------------------------------------------------ content: real launches (speed run, podium, classification)
 const pad2 = (n) => String(n).padStart(2, '0');
-const shotUrl = (w, suffix = '') => `${import.meta.env.BASE_URL}images/work/${w.shot}${suffix}.webp`;
-const FEATURED = WORK.filter((w) => w.featured);
-const statusOf = (w) => (w.concept ? 'Concept' : 'Live');
-const visitLabel = (w) => `Visit ${w.title} — opens the live site in a new tab`;
+const sheetLabel = (w) => `${w.title}, ${w.kind}. Open the telemetry sheet`;
 $('.s2__frames').innerHTML = FEATURED.map((p, i) => `
   <li class="frame" data-i="${i}">
     <span class="frame__num" aria-hidden="true">${pad2(i + 1)}</span>
-    <div class="frame__tilt"><a class="frame__media" href="${p.url}" target="_blank" rel="noopener" data-cursor="Visit" aria-label="${visitLabel(p)}"><img src="${shotUrl(p)}" width="960" height="600" alt="" decoding="async" /><span class="frame__badge mono">${statusOf(p)} · ${p.year}</span></a></div>
+    <div class="frame__tilt"><button class="frame__media" type="button" data-sheet="${WORK.indexOf(p)}" data-cursor="Open" aria-label="${sheetLabel(p)}"><img src="${shotUrl(p)}" width="960" height="600" alt="" decoding="async" /><span class="frame__badge mono">${statusOf(p)} · ${p.year}</span><span class="frame__hint mono" aria-hidden="true">Hover to scroll · click for details</span></button></div>
     <div class="frame__meta"><h3>${p.title}</h3><span class="mono">${p.kind}</span></div>
     <p class="frame__summary">${p.summary}</p>
     <button class="frame__remix mono" type="button" data-remix="${i}">Start a build in this style →</button>
@@ -119,13 +117,13 @@ const podiumOrder = [1, 0, 2]; // 2nd · 1st · 3rd
 $('.podium__steps').innerHTML = podiumOrder.map((idx) => {
   const p = FEATURED[idx];
   return `<div class="step" data-i="${idx}">
-    <a class="step__card" href="${p.url}" target="_blank" rel="noopener" data-cursor="Visit" aria-label="${visitLabel(p)}"><img src="${shotUrl(p)}" width="960" height="600" alt="" loading="lazy" decoding="async" /></a>
+    <button class="step__card" type="button" data-sheet="${WORK.indexOf(p)}" data-cursor="Open" aria-label="${sheetLabel(p)}"><img src="${shotUrl(p)}" width="960" height="600" alt="" loading="lazy" decoding="async" /></button>
     <div class="step__name"><h3>${p.title}</h3><span class="mono">${p.kind}</span></div>
     <div class="step__block" aria-hidden="true">${idx + 1}</div>
   </div>`;
 }).join('');
 $('.classification__rows').innerHTML = WORK.map((p, i) => `
-  <li><a class="row" href="${p.url}" target="_blank" rel="noopener" data-i="${i}" aria-label="${p.title}, ${p.kind}. Opens the live site in a new tab">
+  <li><a class="row" href="${p.url}" target="_blank" rel="noopener" data-i="${i}" data-cursor="Open" aria-haspopup="dialog" aria-label="${p.title}, ${p.kind}, ${statusOf(p)}. Open the telemetry sheet">
     <span class="row__pos">#${pad2(i + 1)}</span><span class="row__name">${p.title}</span><span class="mono">${p.kind}</span><span class="mono">${p.line || p.summary}</span><span class="row__status mono">${statusOf(p)} ↗</span>
   </a></li>`).join('');
 // warm the classification thumbnails once the line-up is close, so hover previews never flash empty
@@ -148,7 +146,8 @@ const configurator = new Configurator({
     const form = $('#contact');
     form.elements.message.value = brief + (form.elements.message.value.replace(/^Setup from the pit stop:[\s\S]*?\n\n\n?/, '') || '');
     if ([...form.elements.type.options].some((o) => o.value === typeLabel)) form.elements.type.value = typeLabel;
-    scrollToEl('#contact');
+    if (lenis) lenis.scrollTo('#contact', { offset: -110, duration: 1.8, easing: (t) => 1 - Math.pow(1 - t, 4) });
+    else $('#contact').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
     setTimeout(() => form.elements.name.focus({ preventScroll: true }), 1600);
   },
 });
@@ -205,7 +204,10 @@ const configurator = new Configurator({
 // ------------------------------------------------------------------ smooth scroll
 let lenis = null;
 if (!reduced) {
-  lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.95, touchMultiplier: 1.4 });
+  lenis = new Lenis({
+    lerp: 0.09, wheelMultiplier: 0.9, touchMultiplier: 1.4,
+    virtualScroll: (d) => wheelGate(d),
+  });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((t) => lenis.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
@@ -218,6 +220,10 @@ const scrollToEl = (target) => {
   if (lenis) lenis.scrollTo(el, { duration: 2, easing: (t) => 1 - Math.pow(1 - t, 4) });
   else el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
 };
+const sheet = createSheet({ getLenis: () => lenis, onRemix: (i) => remix(i), reduced });
+const onboard = createOnboard({ reduced });
+createFilters({ onFiltered: () => ScrollTrigger.refresh(), scrollTo: (sel) => (lenis ? lenis.scrollTo(sel, { offset: -110, duration: 1 }) : $(sel).scrollIntoView()) });
+if (!coarse) frameFilmstrips();
 const remix = (i) => {
   const { type, name, headline, palette, font, layout, radius, motion } = FEATURED[i].cfg;
   configurator.load({ type, name, headline, palette, font, layout, radius, motion });
@@ -229,6 +235,14 @@ document.addEventListener('click', (e) => {
   if (a) { e.preventDefault(); closeMenu(); scrollToEl(a.getAttribute('href')); return; }
   const r = e.target.closest('[data-remix]');
   if (r) { remix(+r.dataset.remix); return; }
+  const jump = e.target.closest('[data-jump]');
+  if (jump) { scrollToEl(jump.dataset.jump); return; }
+  const op = e.target.closest('[data-sheet]');
+  if (op && !op.closest('#sheet')) { sheet.open(+op.dataset.sheet, op.closest('.frame__media, .step__card, .ob__phone') || op); return; }
+  // rows stay real links (middle-click / ⌘-click opens the live site); a plain click opens the sheet
+  const row = e.target.closest('a.row');
+  if (row && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) { e.preventDefault(); sheet.open(+row.dataset.i, row); return; }
+  if (e.target.closest('[data-random]')) { sheet.open(Math.floor(Math.random() * WORK.length), e.target.closest('[data-random]')); return; }
   const rt = e.target.closest('[data-remix-type]');
   if (rt) {
     configurator.set({ type: rt.dataset.remixType });
@@ -327,6 +341,7 @@ const THEMES = [
   { bg: '#2f5bff', nav: '#ffffff', pill: BLUE_PILL, contour: 'rgba(255,255,255,0.13)', ghost: 'rgba(255,255,255,0.3)' },
   { bg: '#efebe3', nav: '#0a0c10', pill: LIGHT_PILL, contour: 'rgba(10,12,16,0.065)', ghost: 'rgba(10,12,16,0.18)' },
   { bg: '#0a0c10', nav: '#efebe3', pill: DARK_PILL, contour: 'rgba(239,235,227,0.055)', ghost: 'rgba(239,235,227,0.16)' },
+  { bg: '#0d1017', nav: '#efebe3', pill: DARK_PILL, contour: 'rgba(142,166,255,0.08)', ghost: 'rgba(239,235,227,0.16)' }, // 7 onboard
 ];
 let themeIdx = -1;
 function setTheme(i) {
@@ -383,6 +398,7 @@ const attachStage = (s) => {
   stage = s;
   if (import.meta.env.DEV) window.__stage = s;
   stage.phonePainter = phonePainter;
+  stage.laptopPainter = laptopPainter;
   stage.previewDirty = true;
   buildStageTracks();
 };
@@ -399,10 +415,22 @@ Promise.all([
   if (!s) stagePromise.then((late) => { attachStage(late); if (late) gsap.to(late, { intro: 0, duration: 2, ease: 'expo.out' }); });
 });
 
-// the phone shows the real mobile build of whichever launch is in focus; in the pit stop, your build
+// the phone shows the real mobile build of whichever launch is in focus (its filmstrip scrolls); in the pit stop, your build
 let phoneProject = 0;
 const phoneShots = FEATURED.map((w) => { const im = new Image(); im.decoding = 'async'; im.src = shotUrl(w, '-m'); return im; });
+const phoneStrips = [], benchStrips = [];
+const warmStrips = (arr, phone) => { if (!arr.length) FEATURED.forEach((w, i) => loadStrip(w, phone).then((im) => (arr[i] = im)).catch(() => {})); };
+const pingpong = (x) => { const f = x % 2; return f < 1 ? f : 2 - f; };
+const easeIO = (x) => 0.5 - Math.cos(Math.PI * Math.min(1, Math.max(0, x))) / 2;
+// draws a tall filmstrip into a screen, scrolled to `y` (0..1 of its travel)
+function drawStrip(ctx, W, H, im, y) {
+  const k = W / im.naturalWidth;
+  const travel = Math.max(0, im.naturalHeight * k - H);
+  ctx.drawImage(im, 0, (travel * y) / k, im.naturalWidth, H / k, 0, 0, W, H);
+}
 function phonePainter(ctx, W, H, t) {
+  const strip = phoneStrips[phoneProject];
+  if (themeIdx !== 4 && strip) { drawStrip(ctx, W, H, strip, easeIO(pingpong(t / 7))); return; }
   const im = phoneShots[phoneProject];
   if (themeIdx !== 4 && im.complete && im.naturalWidth) {
     const k = Math.max(W / im.naturalWidth, H / im.naturalHeight);
@@ -414,6 +442,28 @@ function phonePainter(ctx, W, H, t) {
 }
 if (!reduced) setInterval(() => { if (!inSpeedRun) phoneProject = (phoneProject + 1) % FEATURED.length; }, 3200);
 let inSpeedRun = false;
+
+// the laptop in the Build sector plays one launch after another, scrolling top to bottom
+let benchIdx = 0, benchT0 = -1;
+const BENCH_LAP = 9;
+const benchName = $('.bench__name'), benchCount = $('.bench__count');
+const setBench = (i) => {
+  benchIdx = i;
+  const w = FEATURED[i];
+  benchName.textContent = w.title;
+  benchName.dataset.sheet = String(WORK.indexOf(w));
+  benchName.setAttribute('aria-label', `${w.title} is on the laptop. Open its telemetry sheet`);
+  benchCount.textContent = `${pad2(i + 1)} / ${pad2(FEATURED.length)}`;
+  if (!reduced) gsap.fromTo(benchName, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, ease: 'expo.out' });
+};
+function laptopPainter(ctx, W, H, t) {
+  if (benchT0 < 0) benchT0 = t;
+  if (t - benchT0 > BENCH_LAP) { benchT0 = t; setBench((benchIdx + 1) % FEATURED.length); }
+  const local = t - benchT0;
+  const strip = benchStrips[benchIdx];
+  if (strip) drawStrip(ctx, W, H, strip, easeIO((local - 0.9) / (BENCH_LAP - 2)));
+  else { ctx.fillStyle = '#0a0c10'; ctx.fillRect(0, 0, W, H); }
+}
 
 // ------------------------------------------------------------------ intro: lights out
 let lapStart = 0;
@@ -481,7 +531,7 @@ function setupScroll() {
       ease: 'none',
       scrollTrigger: {
         trigger: '#sector2', pin: true, start: 'top top',
-        end: () => '+=' + (track.scrollWidth - innerWidth) * 1.15,
+        end: () => '+=' + (track.scrollWidth - innerWidth) * 1.45,
         scrub: 0.6, invalidateOnRefresh: true,
         onToggle: (s) => (inSpeedRun = s.isActive),
         onUpdate: (s) => {
@@ -490,10 +540,20 @@ function setupScroll() {
       },
     });
     s2ST = runTween.scrollTrigger;
-    gsap.fromTo(rail, { xPercent: 0 }, { xPercent: -55, ease: 'none', scrollTrigger: { trigger: '#sector2', start: 'top top', end: () => '+=' + (track.scrollWidth - innerWidth) * 1.15, scrub: 0.3, invalidateOnRefresh: true } });
+    gsap.fromTo(rail, { xPercent: 0 }, { xPercent: -55, ease: 'none', scrollTrigger: { trigger: '#sector2', start: 'top top', end: () => '+=' + (track.scrollWidth - innerWidth) * 1.45, scrub: 0.3, invalidateOnRefresh: true } });
     frames.forEach((f, i) => {
       gsap.from($('.frame__media', f), { yPercent: i % 2 ? 40 : -40, rotate: i % 2 ? 6 : -6, scale: 0.85, opacity: 0, ease: 'expo.out', duration: 1.2, scrollTrigger: { trigger: f, containerAnimation: runTween, start: 'left 92%', toggleActions: 'play none none reverse' } });
     });
+  }
+
+  ScrollTrigger.create({ trigger: '#sector2', start: 'top 300%', once: true, onEnter: () => warmStrips(phoneStrips, true) });
+  ScrollTrigger.create({ trigger: '#sector3', start: 'top 250%', once: true, onEnter: () => warmStrips(benchStrips, false) });
+  onboard.mount();
+  // onboard: headline races in, phones rise
+  if (!reduced) {
+    gsap.from('#onboard-title .wi', { xPercent: -120, skewX: -20, opacity: 0, duration: 1.1, ease: 'expo.out', stagger: 0.07, scrollTrigger: { trigger: '#onboard-title', start: 'top 82%', toggleActions: 'play none none reverse' } });
+    gsap.from('.ob', { y: 160, opacity: 0, duration: 1.2, ease: 'expo.out', stagger: 0.05, scrollTrigger: { trigger: '.onboard__lane', start: 'top 88%', toggleActions: 'play none none reverse' }, clearProps: 'opacity' });
+    gsap.from('.bench', { y: 20, opacity: 0, duration: 0.9, ease: 'expo.out', scrollTrigger: { trigger: '.bench', start: 'top 92%', toggleActions: 'play none none reverse' } });
   }
 
   // S3: code types itself, metrics count, trace draws, garage rolls in
@@ -545,7 +605,7 @@ function setupScroll() {
   if (!reduced) {
     const steps = $$('.step');
     gsap.from([steps[1], steps[0], steps[2]].map((s) => $('.step__block', s)), { scaleY: 0, transformOrigin: '50% 100%', duration: 1.1, ease: 'expo.out', stagger: 0.15, scrollTrigger: { trigger: '.podium__steps', start: 'top 75%', toggleActions: 'play none none reverse' } });
-    gsap.from([steps[1], steps[0], steps[2]].map((s) => $('.step__card', s)), { y: 140, opacity: 0, duration: 1.2, ease: 'expo.out', stagger: 0.15, delay: 0.2, scrollTrigger: { trigger: '.podium__steps', start: 'top 75%', toggleActions: 'play none none reverse' } });
+    gsap.from([steps[1], steps[0], steps[2]].map((s) => $('.step__card', s)), { y: 140, opacity: 0, duration: 1.2, ease: 'expo.out', stagger: 0.15, delay: 0.2, clearProps: 'transform,opacity', scrollTrigger: { trigger: '.podium__steps', start: 'top 75%', toggleActions: 'play none none reverse' } });
     gsap.from('.row', { xPercent: 30, opacity: 0, stagger: 0.06, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.classification', start: 'top 85%', toggleActions: 'play none none reverse' } });
   }
 
@@ -599,13 +659,15 @@ function setupScroll() {
 
   // ---------------------------------------------------------------- racing line + car
   buildRacingLine();
-  ScrollTrigger.addEventListener('refresh', () => { buildBands(); buildRacingLine(); buildStageTracks(); });
+  ScrollTrigger.addEventListener('refresh', () => { buildBands(); buildRacingLine(); buildStageTracks(); buildStops(); });
   ScrollTrigger.refresh();
   buildBands();
   buildStageTracks();
+  buildStops();
 
   // velocity-driven bits: skew the speed run, stretch the rails, speed the marquee
-  let lastV = 0;
+  let lastV = 0, lastW = 0;
+  const footMq = $('.footer__marquee');
   const skewFrames = gsap.quickTo('.frame', 'skewX', { duration: 0.5, ease: 'power3' });
   lenis?.on('scroll', ({ velocity }) => {
     lastV = velocity;
@@ -616,11 +678,80 @@ function setupScroll() {
     if (Math.abs(lastV) < 0.1) { skewFrames(0); mq.timeScale(gsap.utils.interpolate(mq.timeScale(), 1, 0.06)); }
     lastV *= 0.92;
     const w = 100 + Math.min(Math.abs(lenis?.velocity || 0) * 2.2, 25);
-    rail.style.fontVariationSettings = `'wdth' ${w}`;
-    $('.footer__marquee').style.fontVariationSettings = `'wdth' ${w}`;
+    const wr = Math.round(w);
+    if (wr !== lastW) { lastW = wr; rail.style.fontVariationSettings = `'wdth' ${wr}`; footMq.style.fontVariationSettings = `'wdth' ${wr}`; }
     if (inSpeedRun) $('.speedlines').style.backgroundPosition = `${-(lenis?.animatedScroll || 0) * 1.6}px 0, ${-(lenis?.animatedScroll || 0) * 0.7}px 0`;
   });
 }
+
+// ------------------------------------------------------------------ speed bumps (wheel pacing)
+// One burst of wheel input can't carry you past the next stop (a sector start or a speed-run frame).
+// Keep pushing into a bump and it lets go after a beat. Nothing ever pulls the page backwards.
+const bump = { stops: [], frames: [], anchor: 0, last: 0, held: 0, blockedAt: -1e9, settleAt: Infinity, dir: 1, spacing: 800 };
+const BUMP_HOLD = 700; // ms of continued input before a bump releases
+function wheelGate(d) {
+  const e = d.event;
+  if (e.type !== 'wheel' || !lenis) return true;
+  const now = e.timeStamp || performance.now();
+  const t = lenis.targetScroll;
+  // a new gesture starts where the last one aimed — but only after a real pause if we were just holding at a bump
+  // (a janky frame between wheel events must not count as letting go)
+  if (now - bump.last > 260 && now - bump.blockedAt > 350) { bump.anchor = t; bump.held = 0; }
+  bump.last = now;
+  const cap = inSpeedRun ? 110 : 180; // free-spinning wheels send huge deltas
+  let dy = Math.max(-cap, Math.min(cap, d.deltaY));
+  if (!dy) return true;
+  bump.dir = Math.sign(dy);
+  bump.settleAt = now + 280;
+  const s = bump.stops;
+  const next = dy > 0 ? s.find((v) => v > bump.anchor + 2) : s.findLast((v) => v < bump.anchor - 2);
+  if (next !== undefined && (dy > 0 ? t + dy > next : t + dy < next)) {
+    if (Math.abs(t - next) < 1) {
+      if (!bump.held) bump.held = now;
+      if (now - bump.held < BUMP_HOLD) { bump.blockedAt = now; if (e.cancelable) e.preventDefault(); return false; }
+      bump.anchor = next; // pushed through: aim for the stop after this one
+      bump.held = 0;
+    } else dy = next - t;
+  }
+  d.deltaY = dy;
+  return true;
+}
+function buildStops() {
+  if (!lenis) return;
+  const docTop = (el) => el.getBoundingClientRect().top + scrollY;
+  const pts = ['#sector1', '#sector3', '#onboard', '#pitstop', '#podium', '#finish'].map((sel) => docTop($(sel)));
+  bump.frames = [];
+  if (s2ST) {
+    const track = $('.s2__track');
+    const maxX = Math.max(1, track.scrollWidth - innerWidth);
+    bump.frames.push(s2ST.start);
+    $$('.frame').forEach((f) => {
+      const want = Math.min(maxX, Math.max(0, f.offsetLeft + f.offsetWidth / 2 - innerWidth / 2));
+      bump.frames.push(s2ST.start + (want / maxX) * (s2ST.end - s2ST.start));
+    });
+    bump.spacing = (s2ST.end - s2ST.start) / Math.max(1, $$('.frame').length);
+  }
+  bump.stops = [...new Set([...pts, ...bump.frames].map((v) => Math.round(v)))].filter((v) => v > 10).sort((a, b) => a - b);
+  bump.frames = bump.frames.map((v) => Math.round(v));
+}
+// once a wheel scroll comes to rest: if it stopped just short of a stop, carry it on; in the speed run,
+// ease onto the frame ahead (or nudge back a little)
+gsap.ticker.add(() => {
+  if (!lenis || lenis.isStopped || performance.now() < bump.settleAt || Math.abs(lenis.velocity) > 0.3) return;
+  bump.settleAt = Infinity;
+  const y = lenis.targetScroll;
+  if (!inSpeedRun) {
+    const ahead = bump.dir > 0 ? bump.stops.find((v) => v > y + 1) : bump.stops.findLast((v) => v < y - 1);
+    if (ahead !== undefined && Math.abs(ahead - y) < innerHeight * 0.15) lenis.scrollTo(ahead, { duration: 0.6, easing: (x) => 1 - Math.pow(1 - x, 3) });
+    return;
+  }
+  if (coarse) return;
+  // only ever forward in the direction you scrolled: one notch pages on to the next build, never back
+  if (bump.frames.some((v) => Math.abs(v - y) < 2)) return;
+  const ahead = bump.dir > 0 ? bump.frames.find((v) => v > y + 1) : bump.frames.findLast((v) => v < y - 1);
+  if (ahead === undefined || Math.abs(ahead - y) > bump.spacing * 1.05) return;
+  lenis.scrollTo(ahead, { duration: 0.7, easing: (x) => 1 - Math.pow(1 - x, 3) });
+});
 
 // section colour bands: one slab of colour per section, each overlapping the one above with a
 // slanted leading edge — colour changes travel with the content instead of flipping mid-screen
@@ -654,7 +785,8 @@ function buildRacingLine() {
   const top = (el) => el.getBoundingClientRect().top + scrollY;
   const span = (el) => { const box = el.parentElement.classList.contains('pin-spacer') ? el.parentElement : el; const t = top(box); return [t, t + box.offsetHeight]; };
   // the line keeps to a margin "lane" inside each section and only swaps sides in the gaps between sections
-  const lane = (side) => (side ? W - Math.max(18, W * 0.025) : Math.max(18, W * 0.025));
+  const m = W < 900 ? 7 : Math.max(18, W * 0.025); // phones: hug the edge so the line never brushes text
+  const lane = (side) => (side ? W - m : m);
   const pts = [[lane(false), vh * 1.02]];
   const run = (el, side, padTop = 0.07, padBot = 0.05) => {
     const [a, b] = span(el);
@@ -667,11 +799,12 @@ function buildRacingLine() {
   };
   run($('#sector1'), false);
   const [s2a, s2b] = span($('#sector2'));
-  pts.push([-80, s2a + vh * 0.2], [-80, s2b - vh * 0.2]); // through the speed run: off-screen, speedlines take over
-  run($('#sector3'), true);
-  run($('#pitstop'), false);
-  run($('#podium'), true);
-  run($('#finish'), false, 0.12, 0.3);
+  pts.push([lane(false) * 0.4, s2a], [-80, s2a + vh * 0.2], [-80, s2b - vh * 0.2], [lane(false) * 0.4, s2b]); // through the speed run: off-screen, speedlines take over
+  run($('#sector3'), false);
+  run($('#onboard'), false, 0.05, 0.05);
+  run($('#pitstop'), true);
+  run($('#podium'), false);
+  run($('#finish'), true, 0.12, 0.3);
   pts.push([W * 0.5, H - 30]);
   // Catmull-Rom → cubic Bézier
   let d = `M${pts[0][0]} ${pts[0][1]}`;
@@ -714,20 +847,23 @@ function buildStageTracks() {
 
   // the phone's screen faces the camera at every resting keyframe (ry ≈ n·2π); full spins happen in between
   const fin = $('#finish'), footH = $('.footer').offsetHeight;
+  const notesTop = docTop($('.notes'));
   stage.setTrack('phone', mob ? [
     // phones: the device lives in the empty band above the headline, then bows out before body copy
     { y: 0, s: S({ x: 0.04, y: 0.27, size: 0.3, rx: 0.1, ry: -0.4, rz: 0.08 }) },
     { y: docTop(grid) + grid.offsetHeight * 0.45, s: S({ x: 0.3, y: 0.55, size: 0.24, ry: -1.2, o: 0 }) },
     { y: s2a - vh * 0.3, s: S({ x: -0.7, y: -0.36, size: 0.2, rx: 0.2, ry: TAU * 2 - 0.3, rz: -0.2, o: 0 }) },
-    { y: s2a, s: S({ x: -0.7, y: -0.36, size: 0.2, rx: 0.2, ry: TAU * 2 - 0.3, rz: -0.2 }) },
-    { y: s2b, s: S({ x: 0.7, y: -0.36, size: 0.2, rx: 0.2, ry: TAU * 3 - 0.3, rz: -0.2 }) },
+    { y: s2a, s: S({ x: -0.3, y: -0.3, size: 0.2, rx: 0.15, ry: TAU * 2 - 0.2, rz: -0.12, o: 0 }) },
+    { y: s2b, s: S({ x: -0.3, y: -0.3, size: 0.2, rx: 0.15, ry: TAU * 2 - 0.2, rz: -0.08, o: 0 }) },
     { y: docTop(s3), s: S({ x: 0.6, y: 0.7, size: 0.2, o: 0 }) },
   ] : [
-    { y: 0, s: S({ x: 0.27, y: -0.02, size: 0.62, rx: 0.08, ry: -0.5, rz: 0.1 }) },
+    { y: 0, s: S({ x: 0.27, y: 0.0, size: 0.56, rx: 0.08, ry: -0.5, rz: 0.1 }) },
     { y: docTop(grid) + grid.offsetHeight - vh * 0.5, s: S({ x: 0.34, y: 0.08, size: 0.52, rx: 0.2, ry: -1.1, rz: 0.04 }) },
-    { y: docTop(s1) + s1.offsetHeight / 2 - vh / 2, s: S({ x: 0.34, y: 0.02, size: 0.5, rx: 0.1, ry: TAU - 0.55, rz: -0.1 }) },
-    { y: s2a, s: S({ x: -0.62, y: -0.3, size: 0.3, rx: 0.25, ry: TAU * 2 - 0.3, rz: -0.3 }) },
-    { y: s2b, s: S({ x: 0.62, y: -0.3, size: 0.3, rx: 0.25, ry: TAU * 3 - 0.3, rz: -0.3 }) },
+    // beside the statement, then up and out before the note cards arrive; it sits the speed run out
+    { y: notesTop - vh * 0.95, s: S({ x: 0.34, y: 0.02, size: 0.5, rx: 0.1, ry: TAU - 0.55, rz: -0.1 }) },
+    { y: notesTop - vh * 0.5, s: S({ x: 0.68, y: 0.1, size: 0.42, rx: 0.2, ry: TAU * 1.3, rz: -0.2, o: 0 }) },
+    { y: s2a, s: S({ x: -0.37, y: -0.22, size: 0.24, rx: 0.12, ry: TAU * 2 - 0.22, rz: -0.12, o: 0 }) },
+    { y: s2b, s: S({ x: -0.35, y: -0.2, size: 0.24, rx: 0.12, ry: TAU * 2 - 0.22, rz: -0.06, o: 0 }) },
     { y: docTop(s3), s: S({ x: 0.55, y: 0.7, size: 0.3, ry: TAU * 3.2, o: 0 }) },
     { y: pitY - vh * 0.5, s: S({ x: 0.55, y: -0.6, size: 0.3, ry: TAU * 3.6, o: 0 }) },
     { y: pitY, s: S({ x: 0.43, y: -0.14, size: 0.36, rx: 0.06, ry: TAU * 4 - 0.28, rz: 0.03 }) },
@@ -744,15 +880,15 @@ function buildStageTracks() {
     { y: docTop(s3) - vh * 0.6, s: S({ x: devX, y: -1.0, size: mob ? 0.7 : 0.38, rx: 0.7, ry: -0.6, lid: 0, o: 0 }) },
     // desktop: rises from below; phones: fades in already in its slot above the copy
     mob
-      ? { y: devY - vh * 0.25, s: S({ x: devX, y: 0.12, size: (dev.width / W) * 0.9, rx: 0.32, ry: -0.42, lid: 0.2, o: 0 }) }
+      ? { y: devY - vh * 0.25, s: S({ x: devX, y: 0.12, size: (dev.width / W) * 0.82, rx: 0.32, ry: -0.42, lid: 0.2, o: 0 }) }
       : { y: docTop(s3) - vh * 0.1, s: S({ x: devX, y: -0.75, size: 0.38, rx: 0.7, ry: -0.6, lid: 0 }) },
-    { y: devY, s: S({ x: devX, y: mob ? 0.12 : 0, size: (dev.width / W) * (mob ? 0.9 : 0.92), rx: 0.32, ry: -0.42, lid: 1 }) },
+    { y: devY, s: S({ x: devX, y: mob ? 0.12 : 0, size: (dev.width / W) * (mob ? 0.82 : 0.84), rx: 0.32, ry: -0.42, lid: 1 }) },
     // phones: scroll up with its slot, then bow out; desktop: brief hold, gone before telemetry
     mob
-      ? { y: devY + vh * 0.5, s: S({ x: devX, y: 0.62, size: (dev.width / W) * 0.9, rx: 0.32, ry: -0.42, lid: 1 }) }
-      : { y: devY + vh * 0.5, s: S({ x: devX, y: 0.05, size: (dev.width / W) * 0.92, rx: 0.3, ry: -0.2, lid: 1 }) },
+      ? { y: devY + vh * 0.5, s: S({ x: devX, y: 0.62, size: (dev.width / W) * 0.82, rx: 0.32, ry: -0.42, lid: 1 }) }
+      : { y: devY + vh * 0.5, s: S({ x: devX, y: 0.05, size: (dev.width / W) * 0.84, rx: 0.3, ry: -0.2, lid: 1 }) },
     mob
-      ? { y: devY + vh * 0.8, s: S({ x: devX, y: 0.92, size: (dev.width / W) * 0.9, rx: 0.32, ry: -0.42, lid: 1, o: 0 }) }
+      ? { y: devY + vh * 0.8, s: S({ x: devX, y: 0.92, size: (dev.width / W) * 0.82, rx: 0.32, ry: -0.42, lid: 1, o: 0 }) }
       : { y: devY + vh * 0.9, s: S({ x: 0.7, y: -0.9, size: 0.3, rx: 0.5, lid: 0.2, o: 0 }) },
     { y: pitY - vh * 0.7, s: S({ x: 0.6, y: -0.8, size: 0.36, rx: 0.5, ry: -0.6, lid: 0, o: mob ? 0 : 0 }) },
     { y: pitY - vh * 0.15, s: S({ x: 0.3, y: -0.2, size: 0.44, rx: 0.3, ry: -0.3, lid: 0.6, o: mob ? 0 : 1 }) },
@@ -783,7 +919,7 @@ if (!coarse && !reduced) {
   document.addEventListener('pointerover', (e) => {
     const t = e.target.closest('a, button, input, label, [data-cursor], .row');
     cursor.classList.toggle('is-hover', !!t);
-    const l = t?.closest('[data-cursor]')?.dataset.cursor || (t?.classList.contains('row') ? 'Remix' : '');
+    const l = t?.closest('[data-cursor]')?.dataset.cursor || '';
     label.textContent = l;
     cursor.classList.toggle('has-label', !!l);
   });
@@ -809,7 +945,11 @@ if (!coarse && !reduced) {
     row.addEventListener('pointerenter', () => { hpImg.src = shotUrl(WORK[+row.dataset.i]); gsap.to(hp, { opacity: 1, scale: 1, rotate: -4, duration: 0.5, ease: 'expo.out' }); });
     row.addEventListener('pointerleave', () => { gsap.to(hp, { opacity: 0, scale: 0.6, rotate: 0, duration: 0.4, ease: 'power3.in' }); });
   });
-  addEventListener('pointermove', (e) => { hx(e.clientX + 48); hy(e.clientY - 200); });
+  addEventListener('pointermove', (e) => { hx(Math.min(e.clientX + 48, innerWidth - 340)); hy(Math.max(96, e.clientY - 200)); });
+  // a jump (menu, brief, sector pill) can carry the page away from the list without a pointerleave
+  addEventListener('scroll', () => {
+    if (+getComputedStyle(hp).opacity > 0 && !document.querySelector('.row:hover')) gsap.to(hp, { opacity: 0, scale: 0.6, rotate: 0, duration: 0.3, overwrite: 'auto' });
+  }, { passive: true });
 } else {
   cursor.remove();
 }
@@ -832,6 +972,7 @@ gsap.ticker.add((time, deltaMs) => {
   const y = lenis ? lenis.animatedScroll : scrollY;
   if (stage) {
     stage.scrollY = y;
+    stage.laptopMode = themeIdx === 3 ? 'show' : 'preview';
     stage.pointer.set(pointer.nx, pointer.ny);
     const pitVisible = themeIdx === 4 || themeIdx === 3;
     configurator.active = pitVisible;
@@ -865,6 +1006,7 @@ gsap.ticker.add((time, deltaMs) => {
     const ds = tilts.map((m) => { const r = m.getBoundingClientRect(); return (r.left + r.width / 2 - innerWidth / 2) / innerWidth; });
     let near = 0;
     ds.forEach((d, i) => { if (Math.abs(d) < Math.abs(ds[near])) near = i; });
+    if (s2ST && s2ST.progress > 0.97) near = ds.length - 1; // the last build can't be centred; at the end it is the one in view
     phoneProject = near;
     tilts.forEach((m, i) => {
       const d = ds[i];
