@@ -11,8 +11,10 @@ fs.mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] });
 const mobile = !!process.env.MOBILE;
 const results = [];
-for (const name of names) {
-  const url = `https://jeremygideonbareh.github.io/${name}/`;
+for (const arg of names) {
+  // "name" → that repo's GitHub Pages site; "name=https://domain/" → any URL, saved as name.webp
+  const [name, custom] = arg.split(/=(.+)/);
+  const url = custom || `https://jeremygideonbareh.github.io/${name}/`;
   const ctx = await browser.newContext(mobile
     ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2, reducedMotion: 'no-preference' }
     : { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: 'no-preference' });
