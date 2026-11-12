@@ -5,7 +5,11 @@ start-light loader, a racing line that draws down the page, a horizontal speed r
 real, live launches, a laptop that opens on scroll, a pit-stop configurator that renders a visitor's
 own site live on 3D devices, and a chequered-flag contact form.
 
-**Live:** https://jeremygideonbareh.github.io/jeremy-portfolio/
+**Live:** https://jeremybareh.me/ (v1 floating island: https://jeremybareh.me/island/)
+
+Custom domain: set in the repo's Settings → Pages. DNS at Namecheap: four A records on `@`
+(185.199.108–111.153) and a `www` CNAME to `jeremygideonbareh.github.io`. The old
+github.io address forwards to the domain automatically.
 
 ## Stack
 Vite · GSAP + ScrollTrigger · Lenis · Three.js · Blender (devices and ceramics) · Playwright (capture tooling)
