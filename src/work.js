@@ -112,7 +112,7 @@ export function createSheet({ getLenis, onRemix, reduced }) {
     $('.sheet__url', el).textContent = host;
     $('.sheet__addr', el).textContent = host;
     $('.sheet__visit', el).href = w.url;
-    $('.sheet__visit', el).setAttribute('aria-label', `Visit ${w.title} — opens in a new tab`);
+    $('.sheet__visit', el).setAttribute('aria-label', `Visit ${w.title} (opens in a new tab)`);
     $('.sheet__remix', el).hidden = !w.cfg;
     $('.sheet__count', el).textContent = `${pad2(i + 1)} / ${pad2(WORK.length)}`;
     players[0].show(loadStrip(w));
@@ -212,7 +212,7 @@ export function createOnboard({ reduced }) {
   $('.onboard__count', sec).textContent = `${WORK.length} launches`;
   list.innerHTML = WORK.map((w, i) => `
     <li class="ob">
-      <button class="ob__phone" type="button" data-sheet="${i}" data-cursor="Open" aria-label="${w.title}, ${w.kind}. Open the telemetry sheet">
+      <button class="ob__phone" type="button" data-sheet="${i}" data-cursor="Open" aria-label="${w.title}, ${w.kind}. See project details">
         <span class="ob__screen"><img alt="" width="300" decoding="async" /></span>
         <span class="ob__island" aria-hidden="true"></span>
         <span class="ob__badge mono" aria-hidden="true">${statusOf(w)}</span>
@@ -357,7 +357,7 @@ export function createFilters({ onFiltered, scrollTo }) {
     });
     const top = $('.filters').getBoundingClientRect().top;
     if (top < 60) scrollTo('.filters');
-    status.textContent = cat === 'all' ? `Showing all ${WORK.length} launches` : `Showing ${shown} of ${WORK.length} — ${chip.firstChild.textContent}`;
+    status.textContent = cat === 'all' ? `Showing all ${WORK.length} launches` : `Showing ${shown} of ${WORK.length}: ${chip.firstChild.textContent}`;
   });
 }
 

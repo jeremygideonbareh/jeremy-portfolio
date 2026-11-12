@@ -75,7 +75,7 @@ export class Configurator {
       e.preventDefault();
       if (this.onSend) {
         this.onSend(this.briefText(), TYPE_LABEL[this.state.type]);
-        this.status('Brief attached to the entry form below.');
+        this.status('Your brief is in the form below.');
       } else {
         window.location.href = this.mailto();
         this.status('Opening your email app with the brief…');
@@ -128,10 +128,10 @@ export class Configurator {
     const url = `${location.origin}${location.pathname}#cfg=${encodeHash(this.state)}`;
     try {
       await navigator.clipboard.writeText(url);
-      this.status('Link copied — anyone who opens it sees this design.');
+      this.status('Link copied. Anyone who opens it sees this design.');
     } catch {
       history.replaceState(null, '', url);
-      this.status('Link is in your address bar — copy it from there.');
+      this.status('The link is in your address bar. Copy it from there.');
     }
   }
 
@@ -151,7 +151,7 @@ export class Configurator {
       'A bit about the project:',
       '',
     ].join('\n');
-    return `mailto:${SITE.email}?subject=${encodeURIComponent(`New ${TYPE_LABEL[s.type].toLowerCase()} — ${s.name}`)}&body=${encodeURIComponent(body)}`;
+    return `mailto:${SITE.email}?subject=${encodeURIComponent(`New ${TYPE_LABEL[s.type].toLowerCase()} from ${s.name}`)}&body=${encodeURIComponent(body)}`;
   }
 
   briefText() {

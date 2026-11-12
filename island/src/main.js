@@ -188,7 +188,7 @@ document.addEventListener('click', (e) => {
   if (remix) {
     const p = FEATURED[+remix.dataset.remix];
     configurator.load({ ...p.cfg, palette: PALETTE_MAP[p.cfg.palette] || 'glacier' });
-    configurator.status(`Loaded the ${p.title} setup — now make it yours.`);
+    configurator.status(`Loaded the ${p.title} style. Change anything you like.`);
     scrollToEl('#build');
     return;
   }

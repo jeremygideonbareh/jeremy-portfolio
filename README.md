@@ -1,7 +1,7 @@
 # Jeremy — Track Day portfolio
 
 A motion-heavy portfolio for an independent designer & developer, built as a racing lap:
-start-light loader, a racing line that draws down the page, a horizontal speed run through
+start-light loader, a racing line that draws down the page, a pinned lane of phones showing
 real, live launches, a laptop that opens on scroll, a pit-stop configurator that renders a visitor's
 own site live on 3D devices, and a chequered-flag contact form.
 
@@ -23,7 +23,7 @@ npm run build      # production build in dist/
 
 ## Make it yours
 Edit `src/config.js`: `SITE.email`, `SITE.formEndpoint` (e.g. Formspree), `SITE.socials`, and the
-`WORK` list (each entry is a GitHub Pages repo; `featured: true` puts it in the speed run and on the podium).
+`WORK` list (each entry is a GitHub Pages repo; `featured: true` puts it on the 3D laptop and phone, and gives it a configurator style).
 
 To refresh screenshots of live sites:
 ```bash

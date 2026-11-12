@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jeremy — Websites, stores &amp; apps built to win</title>
-  <meta name="description" content="Jeremy designs and builds websites, online stores, portfolios and apps engineered for speed. Take a lap through the process and tune your own site in the pit stop." />
+  <title>Jeremy Bareh · Websites, online stores and apps</title>
+  <meta name="description" content="I design and build websites, online stores, portfolios and apps for small businesses. See the sites I&rsquo;ve launched, then try a design of your own." />
   <meta name="theme-color" content="#0a0c10" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0c10'/><path d='M9 22 L15 10 L17 10 L13 18 L23 18 L22 22 Z' fill='%232f5bff'/></svg>" />
   <link rel="preload" href="/models/devices.glb" as="fetch" crossorigin />
@@ -32,19 +32,18 @@
 
   <!-- ============ NAV + TELEMETRY ============ -->
   <header class="nav">
-    <a class="nav__logo" href="#grid" data-scroll aria-label="Jeremy — back to the start">
+    <a class="nav__logo" href="#grid" data-scroll aria-label="Jeremy, back to the top">
       <svg class="nav__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 22 L15 10 L17 10 L13 18 L23 18 L22 22 Z" /></svg>
       <span>JEREMY</span>
     </a>
     <div class="timing mono">
       <span class="timing__lap" aria-hidden="true">LAP <b>01</b></span>
-      <ol class="timing__sectors" aria-label="Sectors"><li data-s="1"><button type="button" data-jump="#sector1" aria-label="Jump to sector 1, discovery"><i></i>S1</button></li><li data-s="2"><button type="button" data-jump="#sector2" aria-label="Jump to sector 2, the work"><i></i>S2</button></li><li data-s="3"><button type="button" data-jump="#sector3" aria-label="Jump to sector 3, build"><i></i>S3</button></li></ol>
+      <ol class="timing__sectors" aria-label="Sectors"><li data-s="1"><button type="button" data-jump="#sector1" aria-label="Jump to sector 1, discovery"><i></i>S1</button></li><li data-s="2"><button type="button" data-jump="#onboard" aria-label="Jump to sector 2, the work"><i></i>S2</button></li><li data-s="3"><button type="button" data-jump="#sector3" aria-label="Jump to sector 3, build"><i></i>S3</button></li></ol>
       <span class="timing__clock" aria-hidden="true">0:00.000</span>
     </div>
     <nav class="nav__links" aria-label="Primary">
       <button class="nav__motion mono" type="button" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Motion <b class="nav__motion-state">On</b></button>
-      <a href="#sector2" data-scroll>Work</a>
-      <a href="#onboard" data-scroll>Onboard</a>
+      <a href="#onboard" data-scroll>Work</a>
       <a href="#pitstop" data-scroll>Build yours</a>
       <a class="btn btn--blue btn--sm magnetic" href="#finish" data-scroll><span>Start a project</span></a>
     </nav>
@@ -53,11 +52,10 @@
   <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
     <a href="#grid" data-scroll><span class="mono">00</span>Grid</a>
     <a href="#sector1" data-scroll><span class="mono">S1</span>Discovery</a>
-    <a href="#sector2" data-scroll><span class="mono">S2</span>Design</a>
+    <a href="#onboard" data-scroll><span class="mono">S2</span>The work</a>
     <a href="#sector3" data-scroll><span class="mono">S3</span>Build</a>
-    <a href="#onboard" data-scroll><span class="mono">ONB</span>Onboard</a>
     <a href="#pitstop" data-scroll><span class="mono">PIT</span>Build yours</a>
-    <a href="#podium" data-scroll><span class="mono">P1</span>Line-up</a>
+    <a href="#podium" data-scroll><span class="mono">P1</span>Full list</a>
     <a href="#finish" data-scroll><span class="mono">FIN</span>Start a project</a>
     <button class="nav__motion mono" type="button" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Motion <b class="nav__motion-state">On</b></button>
   </div>
@@ -69,7 +67,7 @@
   </aside>
 
   <div class="motion-note" role="region" aria-label="Motion preference" hidden>
-    <p>Your device asks for reduced motion, so you&rsquo;re seeing the calm version. This site is built as a lap at full speed.</p>
+    <p>Your device is set to reduce motion, so this is the calm version. The full site moves a lot more.</p>
     <div><button class="btn btn--blue btn--sm" type="button" data-motion-on><span>Turn motion on</span></button><button class="btn btn--ghost btn--sm" type="button" data-motion-dismiss><span>Keep it calm</span></button></div>
   </div>
 
@@ -83,7 +81,7 @@
         <span class="line line--2"><em class="split">to</em> <span class="g split">WIN.</span></span>
       </h1>
       <div class="grid__foot">
-        <p class="grid__lede reveal">I design and build websites, online stores, portfolios and apps that load fast, look sharp and get results. Take a lap &mdash; it&rsquo;s about four minutes.</p>
+        <p class="grid__lede reveal">I design and build websites, online stores and apps for small businesses. They load quickly, work well on phones and are easy to update. Scroll down to see the work.</p>
         <div class="grid__ctas reveal">
           <a class="btn btn--blue magnetic" href="#finish" data-scroll data-cursor="Let's go"><span>Start your project</span><iconify-icon icon="solar:arrow-right-up-linear" aria-hidden="true"></iconify-icon></a>
           <a class="btn btn--ghost magnetic" href="#sector1" data-scroll><span>Take the lap</span><iconify-icon icon="solar:arrow-down-linear" aria-hidden="true"></iconify-icon></a>
@@ -98,29 +96,25 @@
       <header class="sector-head">
         <p class="sector-tag mono"><b>S1</b> Discovery <span class="sector-time">+0.000</span></p>
       </header>
-      <h2 class="statement" id="s1-title">Every great build starts on the <em>grid</em>. Who&rsquo;s racing, where&rsquo;s the <em>finish line</em>, and what does <em>winning</em> look like for you?</h2>
+      <h2 class="statement" id="s1-title">Every project starts with three questions. Who is it <em>for</em>, what should it get them to <em>do</em>, and how will we know it&rsquo;s <em>working</em>?</h2>
       <ol class="notes">
-        <li class="note"><span class="mono">01</span><h3>Who arrives</h3><p>Your customers, what they need, and the one thing they came to do.</p></li>
-        <li class="note"><span class="mono">02</span><h3>The finish line</h3><p>Sales, sign-ups, bookings or hires &mdash; the number the site has to move.</p></li>
-        <li class="note"><span class="mono">03</span><h3>The race plan</h3><p>A written brief, a timeline and a fixed price before a single pixel moves.</p></li>
+        <li class="note"><span class="mono">01</span><h3>Who it&rsquo;s for</h3><p>Your customers, what they need from you, and the one thing they came to do.</p></li>
+        <li class="note"><span class="mono">02</span><h3>What it has to do</h3><p>More orders, bookings or enquiries. We pick the one number the site should move.</p></li>
+        <li class="note"><span class="mono">03</span><h3>The plan</h3><p>You get a written brief, a timeline and a fixed price before any design starts.</p></li>
       </ol>
     </section>
 
-    <!-- S2 DESIGN: pinned horizontal speed run -->
-    <section class="s2 theme-dark" id="sector2" data-sector="2" aria-labelledby="s2-title">
-      <div class="s2__pin">
-        <div class="speedlines" aria-hidden="true"></div>
-        <div class="s2__rail speed-text" aria-hidden="true"><span>DESIGN&nbsp;·&nbsp;DESIGN&nbsp;·&nbsp;DESIGN&nbsp;·&nbsp;DESIGN&nbsp;·&nbsp;DESIGN&nbsp;·&nbsp;DESIGN&nbsp;·&nbsp;</span></div>
-        <div class="s2__track">
-          <div class="s2__intro">
-            <p class="sector-tag mono"><b>S2</b> Design <span class="sector-time">+0.000</span></p>
-            <h2 id="s2-title"><span class="g">FULL</span> <em>speed</em><br /><span class="g">DESIGN.</span></h2>
-            <p>Launches across stores, portfolios, apps and sites &mdash; client work and a few concepts, all online right now. Click any build to open it, or start your own from its setup.</p>
-          </div>
-          <ol class="s2__frames"></ol>
-        </div>
-        <div class="s2__progress mono" aria-hidden="true"><span class="s2__idx">01</span><i><b></b></i><span class="s2__total">08</span></div>
+    <!-- S2 DESIGN: every launch on a phone; pins while scroll slides the lane -->
+    <section class="onboard theme-dark" id="onboard" data-sector="2" aria-labelledby="onboard-title">
+      <div class="onboard__head">
+        <p class="sector-tag mono"><b>S2</b> The work <span class="sector-time">+0.000</span></p>
+        <h2 id="onboard-title"><span class="g">ONBOARD</span> <em>every</em><br /><span class="g">LAUNCH.</span></h2>
+        <p class="onboard__lede">Every site I&rsquo;ve launched, on the phone where most of its customers see it. Keep scrolling and they slide past. Drag to browse, or tap a screen for a closer look.</p>
       </div>
+      <div class="onboard__lane" role="region" aria-label="All launches on phone screens">
+        <div class="onboard__drift"><ol class="onboard__phones"></ol></div>
+      </div>
+      <div class="onboard__foot mono" aria-hidden="true"><span>Scroll or drag &rarr;</span><i><b></b></i><span class="onboard__count">27 launches</span></div>
     </section>
 
     <!-- S3 BUILD: telemetry -->
@@ -129,14 +123,14 @@
         <div class="s3__copy">
           <p class="sector-tag mono"><b>S3</b> Build <span class="sector-time">+0.000</span></p>
           <h2 id="s3-title"><span class="g">ENGINEERED</span><br /><em>for</em> <span class="g">SPEED.</span></h2>
-          <p>Hand-built front ends, Shopify and headless stores, CMS you can actually use, and 3D or motion where it earns its place. Every build is tested on real phones and tuned before it leaves the garage.</p>
+          <p>I write the front end by hand, set up Shopify or custom stores, and connect a CMS you can edit yourself. Motion and 3D go in where they help the story. Everything is tested on real phones before it goes live.</p>
           <pre class="code mono" aria-label="Example code"><code></code></pre>
-          <p class="bench mono"><span class="bench__dot" aria-hidden="true"></span><span>On the bench</span><button class="bench__name" type="button" data-sheet="0">The ARK Music</button><span class="bench__count" aria-hidden="true">01 / 08</span></p>
+          <p class="bench mono"><span class="bench__dot" aria-hidden="true"></span><span>Now showing</span><button class="bench__name" type="button" data-sheet="0">The ARK Music</button><span class="bench__count" aria-hidden="true">01 / 08</span></p>
         </div>
         <div class="s3__device" aria-hidden="true"></div>
       </div>
       <div class="telemetry">
-        <div class="telemetry__head mono"><span>Setup targets on every build</span><span>Telemetry</span></div>
+        <div class="telemetry__head mono"><span>What I aim for on every build</span><span>Performance</span></div>
         <div class="telemetry__grid">
           <div class="metric"><span class="mono">Lighthouse perf.</span><b data-count="95">0</b><em>+ target</em></div>
           <div class="metric"><span class="mono">Largest paint</span><b data-count="2.0" data-dec="1">0</b><em>s or less</em></div>
@@ -148,25 +142,12 @@
       <div class="garage">
         <p class="sector-tag mono"><b>Garage</b> What I build</p>
         <div class="garage__grid">
-          <article class="car-card" data-type="website"><span class="mono">#01</span><h3>Websites</h3><p>Brand sites and landing pages built around one memorable idea.</p><ul class="mono"><li>Scroll stories</li><li>3D &amp; motion</li><li>SEO &amp; speed</li></ul><button class="car-card__cta mono" data-remix-type="website" type="button">Tune one in the pit stop →</button></article>
-          <article class="car-card" data-type="store"><span class="mono">#02</span><h3>Online stores</h3><p>Shopify and headless storefronts with checkout that never gets in the way.</p><ul class="mono"><li>Product storytelling</li><li>Drops &amp; launches</li><li>Checkout UX</li></ul><button class="car-card__cta mono" data-remix-type="store" type="button">Tune one in the pit stop →</button></article>
-          <article class="car-card" data-type="portfolio"><span class="mono">#03</span><h3>Portfolios</h3><p>Image-first case studies for photographers, designers and studios.</p><ul class="mono"><li>Case studies</li><li>Editable CMS</li><li>Page transitions</li></ul><button class="car-card__cta mono" data-remix-type="portfolio" type="button">Tune one in the pit stop →</button></article>
-          <article class="car-card" data-type="app"><span class="mono">#04</span><h3>Apps</h3><p>Web and mobile apps from first wireframe to app-store listing.</p><ul class="mono"><li>iOS · Android · Web</li><li>Onboarding</li><li>Dashboards</li></ul><button class="car-card__cta mono" data-remix-type="app" type="button">Tune one in the pit stop →</button></article>
+          <article class="car-card" data-type="website"><span class="mono">#01</span><h3>Websites</h3><p>Business sites and landing pages built around one clear idea.</p><ul class="mono"><li>Scroll stories</li><li>3D &amp; motion</li><li>SEO &amp; speed</li></ul><button class="car-card__cta mono" data-remix-type="website" type="button">Tune one in the pit stop →</button></article>
+          <article class="car-card" data-type="store"><span class="mono">#02</span><h3>Online stores</h3><p>Shopify and custom stores with a checkout that stays out of the way.</p><ul class="mono"><li>Product storytelling</li><li>Drops &amp; launches</li><li>Checkout UX</li></ul><button class="car-card__cta mono" data-remix-type="store" type="button">Tune one in the pit stop →</button></article>
+          <article class="car-card" data-type="portfolio"><span class="mono">#03</span><h3>Portfolios</h3><p>Image-first sites for photographers, designers and studios.</p><ul class="mono"><li>Case studies</li><li>Editable CMS</li><li>Page transitions</li></ul><button class="car-card__cta mono" data-remix-type="portfolio" type="button">Tune one in the pit stop →</button></article>
+          <article class="car-card" data-type="app"><span class="mono">#04</span><h3>Apps</h3><p>Web and mobile apps, from the first sketch to the app store.</p><ul class="mono"><li>iOS · Android · Web</li><li>Onboarding</li><li>Dashboards</li></ul><button class="car-card__cta mono" data-remix-type="app" type="button">Tune one in the pit stop →</button></article>
         </div>
       </div>
-    </section>
-
-    <!-- ONBOARD: every launch on a phone, drag + scroll drift -->
-    <section class="onboard theme-dark" id="onboard" data-sector="7" aria-labelledby="onboard-title">
-      <div class="onboard__head">
-        <p class="sector-tag mono"><b>ONB</b> Onboard cams</p>
-        <h2 id="onboard-title"><span class="g">ONBOARD</span> <em>every</em><br /><span class="g">LAUNCH.</span></h2>
-        <p class="onboard__lede">Every site as its customers meet it &mdash; on a phone, scrolling live. Keep scrolling and the pit lane slides past; drag it, or tap any screen for the full telemetry.</p>
-      </div>
-      <div class="onboard__lane" role="region" aria-label="All launches on phone screens">
-        <div class="onboard__drift"><ol class="onboard__phones"></ol></div>
-      </div>
-      <div class="onboard__foot mono" aria-hidden="true"><span>Scroll or drag &rarr;</span><i><b></b></i><span class="onboard__count">27 launches</span></div>
     </section>
 
     <!-- PIT STOP: configurator -->
@@ -175,7 +156,7 @@
         <div class="pit__panel">
           <p class="sector-tag mono"><b>PIT</b> Build yours <span class="pit__timer">0.0s</span></p>
           <h2 id="pit-title"><span class="g">TUNE</span> <em>your</em> <span class="g">SETUP.</span></h2>
-          <p class="pit__lede">Pick a type, a palette, fonts and a layout &mdash; the laptop updates live. Send it and it becomes the starting brief for your project.</p>
+          <p class="pit__lede">Pick a type, colours, fonts and a layout and watch the preview change. If you like where it&rsquo;s going, send it to me and we&rsquo;ll start from there.</p>
           <form class="cfg" id="cfg" novalidate>
             <fieldset class="cfg__group">
               <legend class="mono">What are we building?</legend>
@@ -230,17 +211,16 @@
         </div>
         <figure class="pit__preview">
           <div class="pit__preview-frame"><canvas id="preview-canvas" width="1600" height="1000" role="img" aria-label="Live preview of your configured website"></canvas></div>
-          <figcaption class="mono">Live preview — <span class="build__summary">Store · Stone · Grotesk</span></figcaption>
+          <figcaption class="mono">Live preview: <span class="build__summary">Store · Stone · Grotesk</span></figcaption>
         </figure>
       </div>
     </section>
 
     <!-- PODIUM: results -->
     <section class="podium theme-light" id="podium" data-sector="5" aria-labelledby="podium-title">
-      <p class="sector-tag mono"><b>P1</b> Line-up</p>
-      <h2 id="podium-title"><span class="g">THE</span> <em>line-up</em></h2>
-      <p class="podium__note">The podium, then the full classification &mdash; every site below is online, client launches and a few labelled concepts. Filter by class, hover for a preview, click for the full telemetry sheet.</p>
-      <div class="podium__steps"></div>
+      <p class="sector-tag mono"><b>P1</b> Classification</p>
+      <h2 id="podium-title"><span class="g">FULL</span> <em>classification</em></h2>
+      <p class="podium__note">Every site in one list, including a few self-started concepts, labelled as such. Filter by type, hover for a preview, or click a row to see it on desktop and phone.</p>
       <div class="classification">
         <div class="filters" role="toolbar" aria-label="Filter the classification">
           <div class="filters__chips"></div>
@@ -248,7 +228,7 @@
         </div>
         <p class="filters__status mono" role="status" aria-live="polite"></p>
         <div class="classification__head mono"><span>No.</span><span>Build</span><span>Class</span><span>Brief</span><span>Status</span></div>
-        <ol class="classification__rows"></ol>
+        <div class="classification__scroll"><ol class="classification__rows"></ol></div>
       </div>
       <div class="hover-preview" aria-hidden="true"><img alt="" width="960" height="600" decoding="async" /></div>
 
@@ -257,14 +237,14 @@
         <div class="engineer__grid">
           <div>
             <h3 class="engineer__title" id="eng-title"><span class="g">ONE</span> <em>driver,</em><br /><span class="g">START TO FINISH.</span></h3>
-            <p class="engineer__bio">I&rsquo;m Jeremy, an independent designer and developer. I work with small brands, studios and founders who want a site that looks considered and performs. You deal with one person from the first call to launch day, so nothing gets lost between a designer and a developer.</p>
+            <p class="engineer__bio">I&rsquo;m Jeremy. I design and build sites on my own, mostly for small businesses, studios and founders. You deal with me from the first call to launch day, so nothing gets lost between a designer and a developer.</p>
           </div>
           <div class="engineer__col">
             <h4 class="mono">How a project runs</h4>
             <ol class="race-steps">
-              <li><b class="mono">01</b><span><strong>Call &amp; brief.</strong> 30 minutes, then a written plan and a fixed quote.</span></li>
-              <li><b class="mono">02</b><span><strong>Design in motion.</strong> You see real type, colour and animation before sign-off.</span></li>
-              <li><b class="mono">03</b><span><strong>Build &amp; launch.</strong> Tested on real devices, handed over with launch support.</span></li>
+              <li><b class="mono">01</b><span><strong>Call and brief.</strong> A 30-minute call, then a written plan and a fixed quote.</span></li>
+              <li><b class="mono">02</b><span><strong>Design.</strong> You see real fonts, colours and motion before you sign off.</span></li>
+              <li><b class="mono">03</b><span><strong>Build and launch.</strong> Tested on real phones, and I stay on after launch to help.</span></li>
             </ol>
             <h4 class="mono">Toolbox</h4>
             <ul class="toolbox mono"><li>Shopify</li><li>Headless CMS</li><li>Vite</li><li>GSAP</li><li>Three.js</li><li>Blender</li></ul>
@@ -278,9 +258,9 @@
       <div class="checker" aria-hidden="true"></div>
       <p class="sector-tag mono"><b>FIN</b> Chequered flag</p>
       <h2 class="finish__title" id="finish-title"><span class="line"><span class="g split">LIGHTS</span></span><span class="line"><span class="g split">OUT.</span> <em class="split">let&rsquo;s</em></span><span class="line"><span class="g split">BUILD.</span></span></h2>
-      <p class="finish__lede">Tell me what you&rsquo;re making. I reply within two working days with honest next steps, a timeline and a price range.</p>
+      <p class="finish__lede">Tell me what you&rsquo;re working on. I&rsquo;ll reply within two working days with next steps, a rough timeline and a price range.</p>
       <form class="contact" id="contact" novalidate aria-labelledby="contact-title">
-        <h3 class="mono" id="contact-title">Entry form — start a project</h3>
+        <h3 class="mono" id="contact-title">Start a project</h3>
         <div class="contact__grid">
           <label class="field"><span class="mono">Your name</span><input name="name" type="text" autocomplete="name" required /><small class="contact__err" aria-live="polite"></small></label>
           <label class="field"><span class="mono">Email</span><input name="email" type="email" autocomplete="email" required /><small class="contact__err" aria-live="polite"></small></label>
@@ -304,11 +284,11 @@
   <footer class="footer theme-dark">
     <div class="footer__marquee speed-text" aria-hidden="true"><span>ALWAYS BUILDING ✦ ALWAYS BUILDING ✦ ALWAYS BUILDING ✦ ALWAYS BUILDING ✦&nbsp;</span><span>ALWAYS BUILDING ✦ ALWAYS BUILDING ✦ ALWAYS BUILDING ✦ ALWAYS BUILDING ✦&nbsp;</span></div>
     <div class="footer__row mono">
-      <span>&copy; <span class="year"></span> Jeremy — websites, stores, portfolios &amp; apps</span>
+      <span>&copy; <span class="year"></span> Jeremy Bareh &middot; websites, stores, portfolios and apps</span>
       <span>Local time <b class="clock">--:--</b></span>
       <span class="footer__socials"></span>
       <span>Devices &amp; ceramics rendered in Blender · Photos: Poly Haven (CC0)</span>
-      <a href="./island/">See v1 — the floating island →</a>
+      <a href="./island/">See the first version, the floating island →</a>
       <a href="#grid" data-scroll>Back to the grid ↑</a>
     </div>
   </footer>
@@ -351,7 +331,7 @@
           <div class="sheet__screen sheet__screen--phone" tabindex="0" aria-label="Phone preview, scroll to explore"><img class="sheet__strip" alt="" /></div>
         </figure>
       </div>
-      <button class="sheet__close" type="button" data-sheet-close aria-label="Close the telemetry sheet"><i></i><i></i></button>
+      <button class="sheet__close" type="button" data-sheet-close aria-label="Close project details"><i></i><i></i></button>
     </div>
   </div>
 
