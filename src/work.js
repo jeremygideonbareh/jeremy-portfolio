@@ -253,11 +253,21 @@ export function createOnboard({ reduced }) {
     items.forEach((it) => (it.cx = it.li.offsetLeft + it.li.offsetWidth / 2));
   };
   measure();
-  ScrollTrigger.addEventListener('refresh', measure);
-  // triggers are created by mount(), after the speed-run pin exists, so their ranges include its spacing
+  ScrollTrigger.addEventListener('refreshInit', measure);
+  // triggers are created by mount(), after the speed-run pin exists, so their ranges include its spacing.
+  // The section pins while scrolling slides the whole lane sideways, so every phone can be browsed
+  // without the page carrying you past it (if the section is taller than the screen, it pins by its bottom
+  // edge so the phones stay in view).
   const mount = () => {
-    ScrollTrigger.create({ trigger: sec, start: 'top bottom', end: 'bottom top', onUpdate: (s) => (st.p = s.progress), onToggle: (s) => (st.near = s.isActive) });
-    ScrollTrigger.create({ trigger: sec, start: 'top 85%', end: 'bottom 15%', toggleClass: { targets: sec, className: 'is-live' }, onToggle: (s) => (st.live = s.isActive) });
+    ScrollTrigger.create({
+      trigger: sec, pin: true, anticipatePin: 1, invalidateOnRefresh: true,
+      start: () => (sec.offsetHeight > innerHeight ? 'bottom bottom' : 'top top'),
+      end: () => '+=' + Math.round(st.max * 0.55),
+      onUpdate: (s) => (st.p = s.progress),
+    });
+    const spacer = sec.parentElement; // the pin spacer spans the whole pinned stretch
+    ScrollTrigger.create({ trigger: spacer, start: 'top bottom', end: 'bottom top', onToggle: (s) => (st.near = s.isActive) });
+    ScrollTrigger.create({ trigger: spacer, start: 'top 85%', end: 'bottom 15%', toggleClass: { targets: sec, className: 'is-live' }, onToggle: (s) => (st.live = s.isActive) });
   };
 
   // drag (mouse, pen, horizontal swipes) with momentum; vertical swipes still scroll the page
@@ -305,8 +315,8 @@ export function createOnboard({ reduced }) {
   gsap.ticker.add(() => {
     if (!st.near) return;
     if (!st.dragging) { st.drag += st.vel; st.vel *= 0.92; }
-    // scroll drifts the lane right→left as the section passes; drag offsets on top of that
-    const base = -st.p * st.max * 0.8 + st.max * 0.04;
+    // while pinned, scroll slides the lane from the first phone to the last; drag offsets on top of that
+    const base = -st.p * st.max;
     let target = base + st.drag;
     if (target > 0) { st.drag -= target; target = 0; st.vel = 0; }
     if (target < -st.max) { st.drag -= target + st.max; target = -st.max; st.vel = 0; }

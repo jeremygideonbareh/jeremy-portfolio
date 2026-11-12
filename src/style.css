@@ -627,3 +627,10 @@ html[data-sector='1'] .speedo { opacity: 0; }
 }
 /* round 3: a solid logo pill on phones so it never sits on top of text */
 @media (max-width: 899px) { .nav__logo { background: var(--page-bg); box-shadow: 0 0 0 1px var(--line), 0 8px 24px rgba(0, 0, 0, 0.18); } }
+/* onboard pins while scroll slides the lane: keep the whole section within one screen */
+.onboard { padding: 9vh 0 5vh; }
+.onboard h2 { font-size: clamp(2.4rem, 5.2vw, 5.6rem); }
+.onboard__head { margin-bottom: 1vh; }
+.onboard__lane { padding: 3vh var(--gutter) 4vh; }
+.ob { width: clamp(150px, 12.5vw, 215px); }
+@media (max-width: 899px) { .onboard { padding: 8vh 0 4vh; } .ob { width: 44vw; } .onboard__lane { padding-top: 2vh; } }

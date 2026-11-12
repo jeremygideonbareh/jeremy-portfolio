@@ -205,7 +205,7 @@ const configurator = new Configurator({
 let lenis = null;
 if (!reduced) {
   lenis = new Lenis({
-    lerp: 0.09, wheelMultiplier: 0.9, touchMultiplier: 1.4,
+    lerp: 0.1, wheelMultiplier: 1, touchMultiplier: 1.4,
     virtualScroll: (d) => wheelGate(d),
   });
   lenis.on('scroll', ScrollTrigger.update);
@@ -531,7 +531,7 @@ function setupScroll() {
       ease: 'none',
       scrollTrigger: {
         trigger: '#sector2', pin: true, start: 'top top',
-        end: () => '+=' + (track.scrollWidth - innerWidth) * 1.45,
+        end: () => '+=' + (track.scrollWidth - innerWidth) * 1.15,
         scrub: 0.6, invalidateOnRefresh: true,
         onToggle: (s) => (inSpeedRun = s.isActive),
         onUpdate: (s) => {
@@ -540,7 +540,7 @@ function setupScroll() {
       },
     });
     s2ST = runTween.scrollTrigger;
-    gsap.fromTo(rail, { xPercent: 0 }, { xPercent: -55, ease: 'none', scrollTrigger: { trigger: '#sector2', start: 'top top', end: () => '+=' + (track.scrollWidth - innerWidth) * 1.45, scrub: 0.3, invalidateOnRefresh: true } });
+    gsap.fromTo(rail, { xPercent: 0 }, { xPercent: -55, ease: 'none', scrollTrigger: { trigger: '#sector2', start: 'top top', end: () => '+=' + (track.scrollWidth - innerWidth) * 1.15, scrub: 0.3, invalidateOnRefresh: true } });
     frames.forEach((f, i) => {
       gsap.from($('.frame__media', f), { yPercent: i % 2 ? 40 : -40, rotate: i % 2 ? 6 : -6, scale: 0.85, opacity: 0, ease: 'expo.out', duration: 1.2, scrollTrigger: { trigger: f, containerAnimation: runTween, start: 'left 92%', toggleActions: 'play none none reverse' } });
     });
@@ -685,10 +685,10 @@ function setupScroll() {
 }
 
 // ------------------------------------------------------------------ speed bumps (wheel pacing)
-// One burst of wheel input can't carry you past the next stop (a sector start or a speed-run frame).
-// Keep pushing into a bump and it lets go after a beat. Nothing ever pulls the page backwards.
+// Light-touch pacing: one burst of wheel input pauses briefly at the start of each section, so a flick can't
+// fling you straight past one. Keep scrolling and it lets go almost at once. Nothing pulls the page backwards.
 const bump = { stops: [], frames: [], anchor: 0, last: 0, held: 0, blockedAt: -1e9, settleAt: Infinity, dir: 1, spacing: 800 };
-const BUMP_HOLD = 700; // ms of continued input before a bump releases
+const BUMP_HOLD = 280; // ms of continued input before a bump releases
 function wheelGate(d) {
   const e = d.event;
   if (e.type !== 'wheel' || !lenis) return true;
@@ -698,7 +698,7 @@ function wheelGate(d) {
   // (a janky frame between wheel events must not count as letting go)
   if (now - bump.last > 260 && now - bump.blockedAt > 350) { bump.anchor = t; bump.held = 0; }
   bump.last = now;
-  const cap = inSpeedRun ? 110 : 180; // free-spinning wheels send huge deltas
+  const cap = 260; // only tames free-spinning wheels; normal notches and trackpads pass untouched
   let dy = Math.max(-cap, Math.min(cap, d.deltaY));
   if (!dy) return true;
   bump.dir = Math.sign(dy);
@@ -731,7 +731,8 @@ function buildStops() {
     });
     bump.spacing = (s2ST.end - s2ST.start) / Math.max(1, $$('.frame').length);
   }
-  bump.stops = [...new Set([...pts, ...bump.frames].map((v) => Math.round(v)))].filter((v) => v > 10).sort((a, b) => a - b);
+  // bumps only at section starts (and where the speed run begins) — never at every build
+  bump.stops = [...new Set([...pts, ...bump.frames.slice(0, 1)].map((v) => Math.round(v)))].filter((v) => v > 10).sort((a, b) => a - b);
   bump.frames = bump.frames.map((v) => Math.round(v));
 }
 // once a wheel scroll comes to rest: if it stopped just short of a stop, carry it on; in the speed run,
@@ -746,11 +747,11 @@ gsap.ticker.add(() => {
     return;
   }
   if (coarse) return;
-  // only ever forward in the direction you scrolled: one notch pages on to the next build, never back
+  // only a gentle centring when you come to rest close to a build, in the direction you were going
   if (bump.frames.some((v) => Math.abs(v - y) < 2)) return;
   const ahead = bump.dir > 0 ? bump.frames.find((v) => v > y + 1) : bump.frames.findLast((v) => v < y - 1);
-  if (ahead === undefined || Math.abs(ahead - y) > bump.spacing * 1.05) return;
-  lenis.scrollTo(ahead, { duration: 0.7, easing: (x) => 1 - Math.pow(1 - x, 3) });
+  if (ahead === undefined || Math.abs(ahead - y) > bump.spacing * 0.3) return;
+  lenis.scrollTo(ahead, { duration: 0.6, easing: (x) => 1 - Math.pow(1 - x, 3) });
 });
 
 // section colour bands: one slab of colour per section, each overlapping the one above with a
@@ -820,14 +821,17 @@ function buildRacingLine() {
   lineLen = linePath.getTotalLength();
   linePath.style.strokeDasharray = `${lineLen}`;
   lineSamples = [];
-  for (let l = 0; l <= lineLen; l += 10) { const p = linePath.getPointAtLength(l); lineSamples.push([l, p.x, p.y]); }
+  for (let l = 0; l <= lineLen; l += 4) { const p = linePath.getPointAtLength(l); lineSamples.push([l, p.x, p.y]); }
 }
-function carAt(y) {
-  // samples are (mostly) monotonic in y: find the furthest sample above y
+// distance along the racing line at page height y, interpolated between samples (no stepping)
+function lengthAtY(y) {
   let lo = 0, hi = lineSamples.length - 1;
   while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (lineSamples[mid][2] <= y) lo = mid; else hi = mid - 1; }
-  return lineSamples[lo];
+  const a = lineSamples[lo], b = lineSamples[Math.min(lo + 1, lineSamples.length - 1)];
+  const f = b[2] > a[2] ? Math.min(1, Math.max(0, (y - a[2]) / (b[2] - a[2]))) : 0;
+  return a[0] + (b[0] - a[0]) * f;
 }
+let carL = -1;
 
 // device keyframes, rebuilt on every refresh from real section positions
 function buildStageTracks() {
@@ -875,21 +879,20 @@ function buildStageTracks() {
     { y: max - footH * 0.4, s: S({ x: 0.45, y: 0.75, size: 0.3, ry: TAU * 5.4, o: 0 }) },
   ]);
 
+  // S3 laptop: it lives in its slot beside the copy and scrolls exactly with the page (linear keyframes),
+  // opening as it comes up and turning a little as it goes — on screen for as long as its slot is, however
+  // fast you scroll, and it never holds the page
+  const lapSize = (dev.width / W) * (mob ? 0.82 : 0.84);
+  const yOff = mob ? 0.12 : 0;
+  const ride = (k, pose) => ({ y: devY + vh * k, lin: true, s: S({ x: devX, y: yOff + k, size: lapSize, lid: 1, ...pose }) });
   stage.setTrack('laptop', [
-    { y: 0, s: S({ x: devX, y: -1.2, size: 0.3, rx: 0.6, lid: 0, o: 0 }) },
-    { y: docTop(s3) - vh * 0.6, s: S({ x: devX, y: -1.0, size: mob ? 0.7 : 0.38, rx: 0.7, ry: -0.6, lid: 0, o: 0 }) },
-    // desktop: rises from below; phones: fades in already in its slot above the copy
-    mob
-      ? { y: devY - vh * 0.25, s: S({ x: devX, y: 0.12, size: (dev.width / W) * 0.82, rx: 0.32, ry: -0.42, lid: 0.2, o: 0 }) }
-      : { y: docTop(s3) - vh * 0.1, s: S({ x: devX, y: -0.75, size: 0.38, rx: 0.7, ry: -0.6, lid: 0 }) },
-    { y: devY, s: S({ x: devX, y: mob ? 0.12 : 0, size: (dev.width / W) * (mob ? 0.82 : 0.84), rx: 0.32, ry: -0.42, lid: 1 }) },
-    // phones: scroll up with its slot, then bow out; desktop: brief hold, gone before telemetry
-    mob
-      ? { y: devY + vh * 0.5, s: S({ x: devX, y: 0.62, size: (dev.width / W) * 0.82, rx: 0.32, ry: -0.42, lid: 1 }) }
-      : { y: devY + vh * 0.5, s: S({ x: devX, y: 0.05, size: (dev.width / W) * 0.84, rx: 0.3, ry: -0.2, lid: 1 }) },
-    mob
-      ? { y: devY + vh * 0.8, s: S({ x: devX, y: 0.92, size: (dev.width / W) * 0.82, rx: 0.32, ry: -0.42, lid: 1, o: 0 }) }
-      : { y: devY + vh * 0.9, s: S({ x: 0.7, y: -0.9, size: 0.3, rx: 0.5, lid: 0.2, o: 0 }) },
+    { y: 0, s: S({ x: devX, y: yOff - 1.6, size: lapSize, rx: 0.62, ry: -0.75, lid: 0.1, o: 0 }) },
+    ride(-1.3, { rx: 0.62, ry: -0.75, lid: 0.1, o: 0 }),
+    ride(-0.95, { rx: 0.55, ry: -0.66, lid: 0.35 }),
+    ride(-0.4, { rx: 0.38, ry: -0.5 }),
+    ride(0, { rx: 0.32, ry: -0.42 }),
+    ride(0.6, { rx: 0.26, ry: -0.3 }),
+    ride(1.3, { rx: 0.2, ry: -0.2, lid: 0.7, o: 0 }),
     { y: pitY - vh * 0.7, s: S({ x: 0.6, y: -0.8, size: 0.36, rx: 0.5, ry: -0.6, lid: 0, o: mob ? 0 : 0 }) },
     { y: pitY - vh * 0.15, s: S({ x: 0.3, y: -0.2, size: 0.44, rx: 0.3, ry: -0.3, lid: 0.6, o: mob ? 0 : 1 }) },
     { y: pitY, s: S({ x: 0.17, y: 0.06, size: 0.44, rx: 0.1, ry: -0.12, lid: 1, o: mob ? 0 : 1 }) },
@@ -972,7 +975,7 @@ gsap.ticker.add((time, deltaMs) => {
   const y = lenis ? lenis.animatedScroll : scrollY;
   if (stage) {
     stage.scrollY = y;
-    stage.laptopMode = themeIdx === 3 ? 'show' : 'preview';
+    stage.laptopMode = themeIdx <= 3 ? 'show' : 'preview'; // real launches until the pit stop, then your build
     stage.pointer.set(pointer.nx, pointer.ny);
     const pitVisible = themeIdx === 4 || themeIdx === 3;
     configurator.active = pitVisible;
@@ -985,10 +988,12 @@ gsap.ticker.add((time, deltaMs) => {
 
   // car rides the racing line at ~60% of the viewport
   if (lineSamples.length && !reduced) {
-    const target = y + innerHeight * 0.62;
-    const s = carAt(target);
-    car.style.transform = `translate(${s[1]}px, ${s[2]}px)`;
-    linePath.style.strokeDashoffset = `${lineLen - s[0]}`;
+    // the car eases along the line's length, so curves and lane changes glide instead of hopping
+    const want = lengthAtY(y + innerHeight * 0.62);
+    carL = carL < 0 || carL > lineLen ? want : carL + (want - carL) * (1 - Math.exp(-dt * 9));
+    const pt = linePath.getPointAtLength(carL);
+    car.style.transform = `translate3d(${pt.x.toFixed(2)}px, ${pt.y.toFixed(2)}px, 0)`;
+    linePath.style.strokeDashoffset = `${(lineLen - carL).toFixed(1)}`;
   }
 
   // speedometer + lap clock

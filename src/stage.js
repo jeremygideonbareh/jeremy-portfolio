@@ -133,7 +133,10 @@ export class Stage {
     for (let i = 0; i < track.length - 1; i++) {
       const a = track[i], b = track[i + 1];
       if (y < b.y) {
-        const t = smooth((y - a.y) / Math.max(1, b.y - a.y));
+        // `lin` keyframes move at a constant rate with scroll (used to ride along with a page element);
+        // the rest ease in and out between poses
+        const raw = (y - a.y) / Math.max(1, b.y - a.y);
+        const t = b.lin ? raw : smooth(raw);
         const out = {};
         for (const k of KEYS) out[k] = lerp(a.s[k] ?? 0, b.s[k] ?? 0, t);
         return out;
@@ -152,9 +155,11 @@ export class Stage {
     this.spin *= Math.exp(-dt * 1.4);
     this.pointerS.lerp(this.pointer, 1 - Math.exp(-dt * 4));
 
-    const k = this.snapNext ? 1 : 1 - Math.exp(-dt * 6);
+    const snap = this.snapNext;
     this.snapNext = false;
     for (const name of ['phone', 'laptop']) {
+      // the laptop follows its page slot tightly (no floaty lag behind fast scrolls); the phone drifts softly
+      const k = snap ? 1 : 1 - Math.exp(-dt * (name === 'laptop' ? 16 : 6));
       const target = this.#sample(this.tracks[name], this.scrollY);
       if (!target) continue;
       const cur = (this.state[name] ||= { ...target });
