@@ -6,9 +6,8 @@ export const SITE = {
   name: 'Jeremy',
   // Inbox for "Start a project", "Send this brief" and "Copy the address".
   email: 'cloudlyconfusing@gmail.com',
-  // TODO(owner): paste a form endpoint (e.g. https://formspree.io/f/xxxxxx) to receive entries
-  // without the visitor's email app. Leave empty to fall back to a pre-filled email.
-  formEndpoint: '',
+  // FormSubmit delivers entries to the inbox above. If it fails, the form opens a pre-filled email.
+  formEndpoint: 'https://formsubmit.co/ajax/cloudlyconfusing@gmail.com',
   // TODO(owner): your profiles, e.g. [['Instagram', 'https://instagram.com/you'], ['LinkedIn', 'https://linkedin.com/in/you']]
   socials: [],
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,

@@ -431,6 +431,7 @@ html:not([data-sector='1']):not([data-sector='2']) .speedo { opacity: 0; }
 .contact__err { display: block; min-height: 1.1em; margin-top: 5px; color: #ff9a9a; font-size: 0.72rem; }
 .contact__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-top: 18px; }
 .contact__status { color: var(--blue-2); }
+.contact__trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .contact .btn[disabled] { opacity: 0.6; pointer-events: none; }
 .contact__alt { color: var(--fg-2); font-size: 0.85rem; }
 .contact__alt button { background: none; border: 0; padding: 0; color: var(--blue-2); cursor: pointer; text-decoration: underline; font: inherit; }

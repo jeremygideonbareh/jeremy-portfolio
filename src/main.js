@@ -169,8 +169,12 @@ const configurator = new Configurator({
     status.textContent = 'Sending your entry…';
     if (SITE.formEndpoint) {
       try {
-        const res = await fetch(SITE.formEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) });
-        if (!res.ok) throw new Error(res.status);
+        const { company, ...fields } = data;
+        const payload = { ...fields, _subject: `New ${data.type.toLowerCase()} enquiry from ${data.name}`, _replyto: data.email, _honey: company, _captcha: 'false', _template: 'table' };
+        const res = await fetch(SITE.formEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload), signal: AbortSignal.timeout(15000) });
+        const result = await res.json().catch(() => ({}));
+        // FormSubmit can answer 200 with success:false, for example before the inbox is activated.
+        if (!res.ok || String(result.success) !== 'true') throw new Error(result.message || res.status);
         status.textContent = `Got it, thanks ${data.name.split(' ')[0]}. I’ll reply within two working days.`;
         form.reset();
         gsap.fromTo('.checker', { opacity: 0.1 }, { opacity: 0.3, yoyo: true, repeat: 3, duration: 0.25 });
