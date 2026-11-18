@@ -7,7 +7,7 @@ export const SITE = {
   // Inbox for "Start a project", "Send this brief" and "Copy the address".
   email: 'cloudlyconfusing@gmail.com',
   // Formspree form URL (https://formspree.io/f/...). Empty or failing: the form opens a pre-filled email.
-  formEndpoint: '',
+  formEndpoint: 'https://formspree.io/f/xljbnojw',
   // TODO(owner): your profiles, e.g. [['Instagram', 'https://instagram.com/you'], ['LinkedIn', 'https://linkedin.com/in/you']]
   socials: [],
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
