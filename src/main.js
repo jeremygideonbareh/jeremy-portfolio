@@ -171,7 +171,7 @@ const configurator = new Configurator({
       try {
         const { company, ...fields } = data;
         const payload = { ...fields, _subject: `New ${data.type.toLowerCase()} enquiry from ${data.name}`, _replyto: data.email, _honey: company, _captcha: 'false', _template: 'table' };
-        const res = await fetch(SITE.formEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload), signal: AbortSignal.timeout(15000) });
+        const res = await fetch(SITE.formEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload), signal: AbortSignal.timeout(60000) });
         const result = await res.json().catch(() => ({}));
         // FormSubmit can answer 200 with success:false, for example before the inbox is activated.
         if (!res.ok || String(result.success) !== 'true') throw new Error(result.message || res.status);
